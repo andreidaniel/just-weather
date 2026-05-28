@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just Weather</title>
+    <meta name="apple-mobile-web-app-title" content="Just Weather">
+    <meta name="application-name" content="Just Weather">
+    
+    <!-- Tailwind CSS (CDN pentru design) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM (CDNs) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel (Transformă codul React în JavaScript compatibil cu browserul) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+        .animate-bounce-slow { animation: bounce-slow 4s ease-in-out infinite; }
+        
+        /* Ascunderea scrollbar-ului pentru prognoza pe ore, păstrând funcționalitatea */
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="antialiased">
+    
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- TRADUCERI ȘI STRUCTURĂ LOGICĂ (I18N) ---
+        const translations = {
+          ro: {
+            headerSubtitle: "Creat pentru starea ta de bine",
+            searchPlaceholder: "Caută un oraș...",
+            detecting: "Se detectează...",
+            detectError: "Eroare. Caută manual.",
+            approxLocation: "Locație IP. Activează GPS.",
+            wind: "Vânt",
+            humidity: "Umiditate",
+            precipitation: "Precipitații",
+            feelsLike: "Se simte ca",
+            breathingTitle: "Respiră și Eliberează Stresul",
+            breathingSubtitle: "Un moment de liniște în armonie cu vremea",
+            startBreathing: "Începe",
+            stopBreathing: "Oprește",
+            inhale: "Inspiră...",
+            hold: "Menține...",
+            exhale: "Expiră...",
+            credits: "Creat pentru starea ta de bine • 2026",
+            tipsTitle: "Ghidul Vremii",
+            generalTipsTitle: "Gânduri de Bunăstare",
+            weatherClear: "Cer Senin",
+            weatherCloudy: "Înnorat",
+            weatherRainy: "Ploaie",
+            weatherSnowy: "Ninsori",
+            weatherStormy: "Furtună",
+            weatherFoggy: "Ceață",
+            searchBtn: "Caută",
+            weatherTab: "Vremea",
+            tipsTab: "Sfaturi",
+            cyclesCompleted: "Cicluri",
+            cityNotFound: "Orașul nu a fost găsit.",
+            currentLocation: "Locația Curentă",
+            locateMe: "Locația mea",
+            saveCity: "Salvează",
+            savedCities: "Salvate:",
+            hourlyTitle: "Prognoza pe ore",
+            dailyTitle: "Următoarele zile",
+            period_morning: "Ritual de dimineață",
+            period_afternoon: "Pauza de prânz",
+            period_evening: "Liniștea serii",
+            period_night: "Ghid de noapte"
+          },
+          en: {
+            headerSubtitle: "Created for your well-being",
+            searchPlaceholder: "Search city...",
+            detecting: "Detecting...",
+            detectError: "Error. Search manually.",
+            approxLocation: "IP Location. Enable GPS.",
+            wind: "Wind",
+            humidity: "Humidity",
+            precipitation: "Precipitation",
+            feelsLike: "Feels like",
+            breathingTitle: "Breathe & Release",
+            breathingSubtitle: "A moment of peace in harmony with the weather",
+            startBreathing: "Start",
+            stopBreathing: "Stop",
+            inhale: "Inhale...",
+            hold: "Hold...",
+            exhale: "Exhale...",
+            credits: "Created for your well-being • 2026",
+            tipsTitle: "Weather Guide",
+            generalTipsTitle: "Well-being Thoughts",
+            weatherClear: "Clear Sky",
+            weatherCloudy: "Cloudy",
+            weatherRainy: "Rainy",
+            weatherSnowy: "Snowy",
+            weatherStormy: "Stormy",
+            weatherFoggy: "Foggy",
+            searchBtn: "Search",
+            weatherTab: "Weather",
+            tipsTab: "Tips",
+            cyclesCompleted: "Cycles",
+            cityNotFound: "City not found.",
+            currentLocation: "Current Location",
+            locateMe: "My Location",
+            saveCity: "Save",
+            savedCities: "Saved:",
+            hourlyTitle: "Hourly forecast",
+            dailyTitle: "Next days",
+            period_morning: "Morning ritual",
+            period_afternoon: "Midday break",
+            period_evening: "Evening calm",
+            period_night: "Night guide"
+          },
+          es: {
+            headerSubtitle: "Creado para tu bienestar",
+            searchPlaceholder: "Buscar ciudad...",
+            detecting: "Detectando...",
+            detectError: "Error. Busca manual.",
+            approxLocation: "Ubicación IP. Activa GPS.",
+            wind: "Viento",
+            humidity: "Humedad",
+            precipitation: "Precipitación",
+            feelsLike: "Sensación",
+            breathingTitle: "Respira y Libera",
+            breathingSubtitle: "Un momento de paz con el clima",
+            startBreathing: "Comenzar",
+            stopBreathing: "Detener",
+            inhale: "Inhala...",
+            hold: "Retén...",
+            exhale: "Exhala...",
+            credits: "Creado para tu bienestar • 2026",
+            tipsTitle: "Guía del Clima",
+            generalTipsTitle: "Pensamientos de Bienestar",
+            weatherClear: "Despejado",
+            weatherCloudy: "Nublado",
+            weatherRainy: "Lluvioso",
+            weatherSnowy: "Nevado",
+            weatherStormy: "Tormenta",
+            weatherFoggy: "Niebla",
+            searchBtn: "Buscar",
+            weatherTab: "Clima",
+            tipsTab: "Consejos",
+            cyclesCompleted: "Ciclos",
+            cityNotFound: "No encontrada.",
+            currentLocation: "Ubicación Actual",
+            locateMe: "Mi ubicación",
+            saveCity: "Guardar",
+            savedCities: "Guardadas:",
+            hourlyTitle: "Pronóstico por horas",
+            dailyTitle: "Próximos días",
+            period_morning: "Ritual de mañana",
+            period_afternoon: "Pausa de mediodía",
+            period_evening: "Calma de tarde",
+            period_night: "Guía de noche"
+          },
+          fr: {
+            headerSubtitle: "Créé pour votre bien-être",
+            searchPlaceholder: "Rechercher...",
+            detecting: "Détection...",
+            detectError: "Erreur. Cherchez manuel.",
+            approxLocation: "Position IP. Activez GPS.",
+            wind: "Vent",
+            humidity: "Humidité",
+            precipitation: "Précipitations",
+            feelsLike: "Ressenti",
+            breathingTitle: "Respirez & Libérez",
+            breathingSubtitle: "Un moment de paix avec la météo",
+            startBreathing: "Démarrer",
+            stopBreathing: "Arrêter",
+            inhale: "Inspirez...",
+            hold: "Bloquez...",
+            exhale: "Expirez...",
+            credits: "Créé pour votre bien-être • 2026",
+            tipsTitle: "Guide Météo",
+            generalTipsTitle: "Pensées Bien-être",
+            weatherClear: "Dégagé",
+            weatherCloudy: "Nuageux",
+            weatherRainy: "Pluvieux",
+            weatherSnowy: "Neigeux",
+            weatherStormy: "Orageux",
+            weatherFoggy: "Brouillard",
+            searchBtn: "Chercher",
+            weatherTab: "Météo",
+            tipsTab: "Conseils",
+            cyclesCompleted: "Cycles",
+            cityNotFound: "Introuvable.",
+            currentLocation: "Position Actuelle",
+            locateMe: "Ma position",
+            saveCity: "Enregistrer",
+            savedCities: "Enregistrées:",
+            hourlyTitle: "Prévisions horaires",
+            dailyTitle: "Prochains jours",
+            period_morning: "Rituel du matin",
+            period_afternoon: "Pause de midi",
+            period_evening: "Calme du soir",
+            period_night: "Guide de nuit"
+          },
+          zh: {
+            headerSubtitle: "为您的健康生活而创",
+            searchPlaceholder: "搜索城市...",
+            detecting: "定位中...",
+            detectError: "错误。请手动搜索。",
+            approxLocation: "IP位置。开启GPS。",
+            wind: "风速",
+            humidity: "湿度",
+            precipitation: "降水量",
+            feelsLike: "体感温度",
+            breathingTitle: "呼吸与减压",
+            breathingSubtitle: "与天气和谐相处的宁静时刻",
+            startBreathing: "开始",
+            stopBreathing: "停止",
+            inhale: "吸气...",
+            hold: "保持...",
+            exhale: "呼气...",
+            credits: "为您的健康生活而创 • 2026",
+            tipsTitle: "天气指南",
+            generalTipsTitle: "健康思绪",
+            weatherClear: "晴朗",
+            weatherCloudy: "多云",
+            weatherRainy: "下雨",
+            weatherSnowy: "下雪",
+            weatherStormy: "暴风雨",
+            weatherFoggy: "起雾",
+            searchBtn: "搜索",
+            weatherTab: "天气",
+            tipsTab: "建议",
+            cyclesCompleted: "循环",
+            cityNotFound: "未找到。",
+            currentLocation: "当前位置",
+            locateMe: "我的位置",
+            saveCity: "保存",
+            savedCities: "已保存:",
+            hourlyTitle: "每小时预报",
+            dailyTitle: "未来几天",
+            period_morning: "早晨仪式",
+            period_afternoon: "午间休息",
+            period_evening: "傍晚平静",
+            period_night: "夜间向导"
+          }
+        };
+
+        // --- SFATURI BIORITM ZILNIC ---
+        const timeOfDayTipsData = {
+          morning: {
+            ro: "Începe dimineața cu un pahar de apă, deschide fereastra și fă 5 minute de respirație profundă înainte de a verifica telefonul.",
+            en: "Start your morning with a glass of water, open the window, and practice 5 minutes of mindful breathing before checking your phone.",
+            es: "Comienza la mañana con un vaso de agua, abre la ventana y respira profundamente durante 5 minutos antes de usar el teléfono.",
+            fr: "Commencez avec un verre d'eau, ouvrez la fenêtre et respirez consciemment pendant 5 minutes avant de regarder votre téléphone.",
+            zh: "清晨从一杯水开始，打开窗户，在查看手机前进行5分钟的有意识深呼吸。"
+          },
+          afternoon: {
+            ro: "O scurtă pauză de stretching acum te va ajuta să reduci oboseala posturală și să-ți recapeți claritatea mentală.",
+            en: "A short stretching break right now will help reduce postural fatigue and restore your mental clarity.",
+            es: "Un breve descanso para estirarte ahora te ayudará a reducir la fatiga postural y a recuperar tu claridad mental.",
+            fr: "Une courte pause d'étirement vous aidera à réduire la fatigue posturale et à retrouver votre clarté mentale.",
+            zh: "现在进行一次短暂的拉伸休息，有助于缓解身体疲劳，恢复清晰的思维。"
+          },
+          evening: {
+            ro: "Spre seară, lasă mintea să se liniștească. Începe să reduci luminozitatea ecranelor și oferă-ți timp ție însuți.",
+            en: "As evening approaches, let your mind settle. Start reducing screen brightness and give yourself some time.",
+            es: "Al caer la tarde, deja que tu mente descanse. Reduce el brillo de las pantallas y date tiempo para ti.",
+            fr: "À l'approche du soir, laissez votre esprit s'apaiser. Réduisez la luminosité des écrans et prenez du temps pour vous.",
+            zh: "傍晚临近，让思绪慢下来。调低屏幕亮度，留出时间与自己相处。"
+          },
+          night: {
+            ro: "Pregătește-te pentru un somn odihnitor. Aerisește dormitorul și folosește exercițiul de respirație pentru a elibera tensiunea.",
+            en: "Prepare for a restful sleep. Ventilate your bedroom and use our breathing exercise to release any residual tension.",
+            es: "Prepárate para un sueño reparador. Ventila tu habitación y haz el ejercicio de respiración para liberar tensiones.",
+            fr: "Préparez-vous à un sommeil réparateur. Aérez votre chambre et utilisez notre exercice de respiration pour libérer les tensions.",
+            zh: "准备进入甜美的梦乡。让卧室通风，使用我们的呼吸练习释放全天的压力。"
+          }
+        };
+
+        const generalTipsData = {
+          ro: [
+            "Îndreaptă-ți spatele și relaxează-ți umerii.",
+            "Bea un pahar cu apă pentru a te hidrata.",
+            "Odihnește-ți ochii privind la distanță 20 secunde.",
+            "Fă-ți un compliment sincer astăzi. Îl meriți."
+          ],
+          en: [
+            "Straighten your back and relax your shoulders.",
+            "Drink a glass of water to stay hydrated.",
+            "Rest your eyes by looking far away for 20 seconds.",
+            "Give yourself a sincere compliment today."
+          ],
+          es: [
+            "Endereza la espalda y relaja los hombros.",
+            "Bebe un vaso de agua para mantenerte hidratado.",
+            "Descansa los ojos mirando a lo lejos por 20 segundos.",
+            "Hazte un cumplido sincero hoy. Te lo mereces."
+          ],
+          fr: [
+            "Redressez votre dos et détendez vos épaules.",
+            "Buvez un verre d'eau pour rester hydraté.",
+            "Reposez vos yeux en regardant au loin 20 secondes.",
+            "Faites-vous un compliment sincère aujourd'hui."
+          ],
+          zh: [
+            "挺直后背，放松肩膀。",
+            "喝一杯水以保持水分。",
+            "眺望远方20秒，让眼睛休息。",
+            "今天给自己一个真诚的夸奖。"
+          ]
+        };
+
+        // --- STILURI DE TEME EXPLICITE ȘI SIGURE ---
+        const themeData = {
+          clear: {
+            bgGradient: "from-amber-50 via-orange-100 to-amber-100",
+            cardBg: "bg-white/80 border border-amber-200/50 shadow-amber-900/5",
+            panelBg: "bg-amber-900/5", 
+            textPrimary: "text-amber-950",
+            textSecondary: "text-amber-900/70",
+            badgeBg: "bg-amber-200/70 text-amber-950",
+            btnActive: "bg-amber-600 text-white hover:bg-amber-700",
+            btnInactive: "bg-amber-100/65 text-amber-950 hover:bg-amber-200/60 border border-amber-200/40",
+            iconColor: "text-amber-500",
+            isDark: false
+          },
+          cloudy: {
+            bgGradient: "from-slate-100 via-zinc-100 to-blue-50",
+            cardBg: "bg-white/80 border border-slate-200/60 shadow-slate-900/5",
+            panelBg: "bg-slate-900/5",
+            textPrimary: "text-slate-900",
+            textSecondary: "text-slate-600",
+            badgeBg: "bg-slate-200/70 text-slate-900",
+            btnActive: "bg-slate-700 text-white hover:bg-slate-800",
+            btnInactive: "bg-slate-100/65 text-slate-700 hover:bg-slate-200/60 border border-slate-200/40",
+            iconColor: "text-slate-400",
+            isDark: false
+          },
+          rainy: {
+            bgGradient: "from-slate-900 via-indigo-950 to-slate-950",
+            cardBg: "bg-slate-900/70 border border-indigo-500/20 shadow-black/20",
+            panelBg: "bg-white/5",
+            textPrimary: "text-white",
+            textSecondary: "text-indigo-200/70",
+            badgeBg: "bg-indigo-950/80 text-indigo-200 border border-indigo-500/30",
+            btnActive: "bg-indigo-600 text-white hover:bg-indigo-700",
+            btnInactive: "bg-slate-800/60 text-slate-300 hover:bg-slate-700/60 border border-slate-800",
+            iconColor: "text-blue-400",
+            isDark: true
+          },
+          snowy: {
+            bgGradient: "from-blue-50 via-sky-50 to-indigo-100",
+            cardBg: "bg-white/80 border border-sky-200/60 shadow-sky-900/5",
+            panelBg: "bg-sky-900/5",
+            textPrimary: "text-sky-950",
+            textSecondary: "text-sky-800",
+            badgeBg: "bg-sky-200/70 text-sky-950",
+            btnActive: "bg-sky-600 text-white hover:bg-sky-700",
+            btnInactive: "bg-sky-100/65 text-sky-900 hover:bg-sky-200/60 border border-sky-200/40",
+            iconColor: "text-sky-500",
+            isDark: false
+          },
+          stormy: {
+            bgGradient: "from-slate-950 via-purple-950 to-zinc-950",
+            cardBg: "bg-purple-950/40 border border-purple-500/20 shadow-black/40",
+            panelBg: "bg-white/5",
+            textPrimary: "text-purple-50",
+            textSecondary: "text-purple-200/70",
+            badgeBg: "bg-purple-900/50 text-purple-200 border border-purple-500/30",
+            btnActive: "bg-purple-600 text-white hover:bg-purple-700",
+            btnInactive: "bg-slate-900/60 text-slate-300 hover:bg-slate-800/60 border border-slate-800",
+            iconColor: "text-purple-400",
+            isDark: true
+          },
+          foggy: {
+            bgGradient: "from-zinc-200 via-slate-100 to-zinc-300",
+            cardBg: "bg-white/80 border border-zinc-300/60 shadow-zinc-900/5",
+            panelBg: "bg-zinc-900/5",
+            textPrimary: "text-zinc-900",
+            textSecondary: "text-zinc-700",
+            badgeBg: "bg-zinc-300/70 text-zinc-900",
+            btnActive: "bg-zinc-700 text-white hover:bg-zinc-800",
+            btnInactive: "bg-zinc-100/65 text-zinc-700 hover:bg-zinc-200/60 border border-zinc-300/40",
+            iconColor: "text-zinc-500",
+            isDark: false
+          }
+        };
+
+        // --- SFATURI METEO SPECIFICE ---
+        const appData = {
+          clear: {
+            tips: {
+              ro: "Afară e senin. Poartă haine lejere și deschise la culoare. Nu uita de ochelarii de soare și protecția solară (SPF 30+) dacă ieși pentru mai mult timp.",
+              en: "It's clear outside. Wear light-colored, loose clothing. Don't forget your sunglasses and sunscreen (SPF 30+) if heading out.",
+              es: "Está despejado. Usa ropa ligera y de colores claros. No olvides tus gafas de sol y protector si vas a salir.",
+              fr: "Le temps est dégagé. Portez des vêtements légers et clairs. N'oubliez pas vos lunettes de soleil et la crème solaire.",
+              zh: "外面天气晴朗。请穿着浅色、宽松的衣服。如果外出时间较长，别忘了戴上墨镜并涂抹防晒霜。"
+            }
+          },
+          cloudy: {
+            tips: {
+              ro: "O zi perfectă pentru plimbări prelungite, cerul înnorat te protejează de soarele puternic. Ia totuși o jachetă subțire cu tine.",
+              en: "Perfect day for extended walks, the cloudy sky protects you from harsh sun. Take a light jacket with you just in case.",
+              es: "Día perfecto para caminatas largas, el cielo nublado te protege del sol. Lleva una chaqueta ligera por si acaso.",
+              fr: "Une journée parfaite pour de longues promenades à l'abri du soleil. Prenez tout de même une veste légère avec vous.",
+              zh: "非常适合散步，多云的天空可以保护你免受烈日暴晒。建议随身带一件薄外套。"
+            }
+          },
+          rainy: {
+            tips: {
+              ro: "Vremea ploioasă cere precauție. Ia cu tine o umbrelă robustă și poartă încălțăminte rezistentă la apă dacă ieși din casă.",
+              en: "Rainy weather calls for caution. Take a sturdy umbrella and wear water-resistant shoes if leaving the house.",
+              es: "El clima lluvioso exige precaución. Lleva un buen paraguas y usa zapatos impermeables si sales de casa.",
+              fr: "La pluie demande de la prudence. Prenez un parapluie robuste et portez des chaussures imperméables si vous sortez.",
+              zh: "下雨天出行需谨慎。如果出门，请带上一把结实的雨伞并穿上防水鞋。"
+            }
+          },
+          snowy: {
+            tips: {
+              ro: "Frigul s-a instalat. Îmbracă-te inteligent în mai multe straturi subțiri și protejează-ți extremitățile (căciulă, mănuși, fular).",
+              en: "The cold has set in. Dress smartly in multiple thin layers and protect your extremities (hat, gloves, scarf).",
+              es: "Ha llegado el frío. Vístete en capas finas y protege tus extremidades (gorro, guantes, bufanda).",
+              fr: "Le froid est là. Habillez-vous en plusieurs couches fines et protégez vos extrémités (bonnet, gants, écharpe).",
+              zh: "天气转寒。请注意多层保暖，并保护好头部和手部（帽子、手套、围巾）。"
+            }
+          },
+          stormy: {
+            tips: {
+              ro: "Condiții meteo instabile! Evită deplasările neesențiale. Rămâi la distanță de ferestre și bucură-te de siguranța din casă.",
+              en: "Unstable weather conditions! Avoid non-essential travel. Stay away from windows and enjoy the safety of your home.",
+              es: "¡Condiciones climáticas inestables! Evita viajes innecesarios. Aléjate de las ventanas y disfruta del hogar.",
+              fr: "Météo instable ! Évitez les déplacements inutiles. Éloignez-vous des fenêtres et profitez de la sécurité de votre maison.",
+              zh: "天气不稳定！尽量避免不必要的外出。远离窗户，享受家中的安全感。"
+            }
+          },
+          foggy: {
+            tips: {
+              ro: "Vizibilitatea este redusă din cauza ceții. Fii extrem de precaut în trafic și poartă elemente reflectorizante dacă ești pieton.",
+              en: "Visibility is reduced due to fog. Be extremely cautious in traffic and wear reflective items if walking.",
+              es: "La visibilidad es reducida por la niebla. Mucha precaución en el tráfico y lleva elementos reflectantes si caminas.",
+              fr: "La visibilité est réduite par le brouillard. Soyez très prudent sur la route et portez des éléments réfléchissants.",
+              zh: "由于起雾，能见度降低。出行请格外注意交通安全；如果步行，请佩戴反光物品。"
+            }
+          }
+        };
+
+        // --- Funcție de detecție automată a limbii browserului ---
+        const getBrowserLanguage = () => {
+          const browserLang = navigator.language.split('-')[0].toLowerCase();
+          const supportedLangs = ['ro', 'en', 'es', 'fr', 'zh'];
+          return supportedLangs.includes(browserLang) ? browserLang : 'en'; // Engleză ca fallback
+        };
+
+        function App() {
+          const [lang, setLang] = useState(getBrowserLanguage()); // Setează limba inițială automat
+          const [activeTab, setActiveTab] = useState('weather');
+          const [weatherData, setWeatherData] = useState(null);
+          const [searchQuery, setSearchQuery] = useState("");
+          const [loading, setLoading] = useState(false);
+          const [statusMessage, setStatusMessage] = useState("");
+          const [locationWarning, setLocationWarning] = useState("");
+          const [savedCities, setSavedCities] = useState([]);
+          const [timePeriod, setTimePeriod] = useState("morning");
+          
+          const [isBreathing, setIsBreathing] = useState(false);
+          const [breathPhase, setBreathPhase] = useState('idle');
+          const [breathCount, setBreathCount] = useState(0);
+          const breathTimerRef = useRef(null);
+
+          useEffect(() => {
+            const updatePeriod = () => {
+              const currentHour = new Date().getHours();
+              if (currentHour >= 5 && currentHour < 12) setTimePeriod("morning");
+              else if (currentHour >= 12 && currentHour < 18) setTimePeriod("afternoon");
+              else if (currentHour >= 18 && currentHour < 22) setTimePeriod("evening");
+              else setTimePeriod("night");
+            };
+            updatePeriod();
+            const interval = setInterval(updatePeriod, 60000); 
+            return () => clearInterval(interval);
+          }, []);
+
+          const getWeatherCategory = (code) => {
+            if (code === undefined || code === null) return 'clear';
+            if (code === 0) return 'clear';
+            if (code >= 1 && code <= 3) return 'cloudy';
+            if (code === 45 || code === 48) return 'foggy';
+            if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'rainy';
+            if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return 'snowy';
+            if (code >= 95) return 'stormy';
+            return 'clear';
+          };
+
+          const weatherCategory = weatherData ? getWeatherCategory(weatherData.code) : 'clear';
+          const currentTheme = themeData[weatherCategory];
+          const isCurrentCitySaved = weatherData && savedCities.some(c => c.city === weatherData.city);
+
+          const toggleSaveCity = () => {
+            if (!weatherData) return;
+            if (isCurrentCitySaved) {
+              setSavedCities(prev => prev.filter(c => c.city !== weatherData.city));
+            } else {
+              setSavedCities(prev => [...prev, { city: weatherData.city, lat: weatherData.lat, lon: weatherData.lon }]);
+            }
+          };
+
+          const fetchWeatherByCoords = async (lat, lon, cityName = "") => {
+            setLoading(true);
+            setStatusMessage(translations[lang]?.detecting || "Se caută...");
+            try {
+              const weatherRes = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`
+              );
+              const weatherJson = await weatherRes.json();
+              
+              let resolvedCityName = cityName;
+              if (!resolvedCityName) {
+                try {
+                  const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`);
+                  const geoJson = await geoRes.json();
+                  resolvedCityName = geoJson.address?.city || geoJson.address?.town || geoJson.address?.village || translations[lang].currentLocation;
+                } catch (e) {
+                  resolvedCityName = translations[lang]?.currentLocation || "Locația Ta";
+                }
+              }
+
+              const current = weatherJson.current;
+              const hourly = weatherJson.hourly;
+              const daily = weatherJson.daily;
+
+              const nextHours = [];
+              if (hourly && hourly.time) {
+                for (let i = 0; i < 8; i++) {
+                  const timeVal = new Date(hourly.time[i]);
+                  const formattedTime = timeVal.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit', hour12: false });
+                  nextHours.push({
+                    time: formattedTime,
+                    temp: Math.round(hourly.temperature_2m[i]),
+                    code: hourly.weather_code[i]
+                  });
+                }
+              }
+
+              const nextDays = [];
+              if (daily && daily.time) {
+                for (let i = 1; i < 6; i++) {
+                  const dateVal = new Date(daily.time[i]);
+                  const dayName = dateVal.toLocaleDateString(lang, { weekday: 'short' });
+                  nextDays.push({
+                    day: dayName,
+                    code: daily.weather_code[i],
+                    max: Math.round(daily.temperature_2m_max[i]),
+                    min: Math.round(daily.temperature_2m_min[i]),
+                    precipProb: daily.precipitation_probability_max?.[i] || 0
+                  });
+                }
+              }
+
+              setWeatherData({
+                temp: Math.round(current.temperature_2m),
+                humidity: Math.round(current.relative_humidity_2m),
+                code: current.weather_code,
+                windspeed: Math.round(current.wind_speed_10m),
+                feels: Math.round(current.apparent_temperature),
+                precipitation: current.precipitation || 0,
+                city: resolvedCityName,
+                lat: lat,
+                lon: lon,
+                hourly: nextHours,
+                daily: nextDays
+              });
+              setStatusMessage("");
+            } catch (error) {
+              console.error(error);
+              setStatusMessage(translations[lang]?.detectError || "Eroare.");
+            } finally {
+              setLoading(false);
+            }
+          };
+
+          const handleSearch = async (e) => {
+            if (e) e.preventDefault();
+            const cleanQuery = searchQuery.trim();
+            if (!cleanQuery) return;
+
+            setLoading(true);
+            setStatusMessage("");
+            setLocationWarning(""); 
+            try {
+              const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cleanQuery)}&count=1&language=${lang === 'zh' ? 'en' : lang}`);
+              const geoJson = await geoRes.json();
+
+              if (geoJson.results && geoJson.results.length > 0) {
+                const result = geoJson.results[0];
+                await fetchWeatherByCoords(result.latitude, result.longitude, result.name);
+                setSearchQuery("");
+              } else {
+                setStatusMessage(translations[lang]?.cityNotFound || "Nu a fost găsit.");
+              }
+            } catch (error) {
+              setStatusMessage(translations[lang]?.detectError || "Eroare.");
+            } finally {
+              setLoading(false);
+            }
+          };
+
+          const getLocationWithIPFallback = async () => {
+            setLoading(true);
+            setStatusMessage(translations[lang]?.detecting || "Se caută...");
+            setLocationWarning("");
+
+            const fallbackToIPGeo = async () => {
+              try {
+                const res = await fetch('https://get.geojs.io/v1/ip/geo.json');
+                const data = await res.json();
+                if (data.latitude && data.longitude) {
+                   setLocationWarning(translations[lang]?.approxLocation || "Locație IP.");
+                   await fetchWeatherByCoords(parseFloat(data.latitude), parseFloat(data.longitude), data.city || translations[lang]?.currentLocation);
+                } else {
+                   throw new Error("Invalid IP Data");
+                }
+              } catch (err) {
+                fetchWeatherByCoords(47.65, 23.56, "Baia Mare");
+              }
+            };
+
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  fetchWeatherByCoords(position.coords.latitude, position.coords.longitude);
+                },
+                (error) => {
+                  fallbackToIPGeo();
+                },
+                { timeout: 15000, enableHighAccuracy: true, maximumAge: 0 }
+              );
+            } else {
+              fallbackToIPGeo();
+            }
+          };
+
+          useEffect(() => {
+            getLocationWithIPFallback();
+          }, []);
+
+          useEffect(() => {
+            if (weatherData && statusMessage) {
+              setStatusMessage(translations[lang]?.cityNotFound || "");
+            }
+          }, [lang, weatherCategory]);
+
+          useEffect(() => {
+            if (isBreathing) {
+              const runBreathingCycle = () => {
+                setBreathPhase('inhale');
+                breathTimerRef.current = setTimeout(() => {
+                  setBreathPhase('hold');
+                  breathTimerRef.current = setTimeout(() => {
+                    setBreathPhase('exhale');
+                    breathTimerRef.current = setTimeout(() => {
+                      setBreathCount(prev => prev + 1);
+                      runBreathingCycle();
+                    }, 4000);
+                  }, 4000);
+                }, 4000);
+              };
+              runBreathingCycle();
+            } else {
+              if (breathTimerRef.current) clearTimeout(breathTimerRef.current);
+              setBreathPhase('idle');
+            }
+            return () => {
+              if (breathTimerRef.current) clearTimeout(breathTimerRef.current);
+            };
+          }, [isBreathing]);
+
+          const getWeatherEmoji = (code) => {
+            if (code === 0) return "☀️";
+            if (code >= 1 && code <= 3) return "⛅";
+            if (code === 45 || code === 48) return "🌫️";
+            if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return "🌧️";
+            if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return "❄️";
+            if (code >= 95) return "⛈️";
+            return "☀️";
+          };
+
+          const renderWeatherIcon = (category) => {
+            const defaultClass = "w-24 h-24 stroke-current filter drop-shadow-md transition-all duration-700";
+            switch (category) {
+              case 'clear': return <svg className={`${defaultClass} ${currentTheme.iconColor} animate-spin-slow`} fill="none" viewBox="0 0 24 24" strokeWidth="1.5"><circle cx="12" cy="12" r="5" strokeLinecap="round" strokeLinejoin="round" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+              case 'cloudy': return <svg className={`${defaultClass} ${currentTheme.iconColor} animate-bounce-slow`} fill="none" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" /></svg>;
+              case 'rainy': return <svg className={`${defaultClass} ${currentTheme.iconColor}`} fill="none" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" /><path className="animate-pulse" strokeLinecap="round" strokeLinejoin="round" d="M8.25 21v-1.5M12 22.5V21M15.75 21v-1.5" /></svg>;
+              case 'snowy': return <svg className={`${defaultClass} ${currentTheme.iconColor} animate-spin-slow`} fill="none" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18M3 12h18m-3-6L6 18M6 6l12 12" /></svg>;
+              case 'stormy': return <svg className={`${defaultClass} ${currentTheme.iconColor}`} fill="none" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" /><path className="animate-pulse" strokeLinecap="round" strokeLinejoin="round" d="M11.25 19.5l-3 4.5h6l-3 4.5" /></svg>;
+              case 'foggy': return <svg className={`${defaultClass} ${currentTheme.iconColor} animate-pulse`} fill="none" viewBox="0 0 24 24" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M5 18h14" /></svg>;
+              default: return null;
+            }
+          };
+
+          const circleStyle = {
+            transform: breathPhase === 'inhale' || breathPhase === 'hold' ? 'scale(1.8)' : 'scale(1)',
+            backgroundColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(15, 23, 42, 0.12)',
+            boxShadow: breathPhase === 'hold' 
+              ? (currentTheme.isDark ? '0 0 35px rgba(255, 255, 255, 0.45)' : '0 0 30px rgba(15, 23, 42, 0.18)')
+              : 'none',
+            transition: isBreathing ? 'all 4000ms cubic-bezier(0.4, 0, 0.2, 1)' : 'all 1000ms ease'
+          };
+
+          const breathTextColor = currentTheme.isDark ? '#ffffff' : '#0f172a';
+
+          return (
+            <div className={`min-h-screen flex flex-col items-center justify-between p-4 md:p-8 transition-colors duration-1000 bg-gradient-to-br ${currentTheme.bgGradient}`}>
+              
+              <header className="w-full max-w-4xl relative mb-6 mt-4 z-10 flex flex-col items-center justify-center">
+                <div className="flex bg-white/20 backdrop-blur-md rounded-full p-1 border border-white/20 shadow-sm mb-6 max-w-xs justify-center flex-wrap gap-1">
+                  {['ro', 'en', 'es', 'fr', 'zh'].map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setLang(l)}
+                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase transition-all ${
+                        lang === l ? `${currentTheme.btnActive} shadow-sm` : currentTheme.btnInactive
+                      }`}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-700 hover:scale-105 ${currentTheme.cardBg}`}>
+                  <svg className={`w-8 h-8 ${currentTheme.iconColor}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 12c1.5-2 3.5-3 5.5-1s3 4 5 1 3.5-3 5.5-1" />
+                    <path d="M4 16c1.5-2 3.5-3 5.5-1s3 4 5 1 3.5-3 5.5-1" className="opacity-50" />
+                    <circle cx="12" cy="5.5" r="2" fill="currentColor" />
+                  </svg>
+                </div>
+              </header>
+
+              <main className="w-full max-w-2xl flex-grow flex flex-col justify-center items-center z-10 gap-6">
+                
+                <div className="w-full">
+                  <form onSubmit={handleSearch} className="w-full flex gap-2">
+                    <div className="relative flex-grow">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={translations[lang]?.searchPlaceholder || "Caută oraș..."}
+                        className={`w-full rounded-2xl pl-5 pr-12 py-3 text-base font-semibold transition-all outline-none hover:shadow-md focus:shadow-lg focus:scale-[1.02] ${currentTheme.cardBg} ${currentTheme.textPrimary} placeholder:text-current placeholder:opacity-50`}
+                      />
+                      <button 
+                        type="button"
+                        onClick={getLocationWithIPFallback}
+                        title={translations[lang]?.locateMe || "Locația mea"}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-full hover:bg-black/10 text-current transition-all active:scale-90"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                        </svg>
+                      </button>
+                    </div>
+                    <button 
+                      type="submit" 
+                      disabled={loading} 
+                      className={`px-6 py-3 rounded-2xl font-bold transition-all whitespace-nowrap shadow-sm active:scale-95 ${currentTheme.btnActive}`}
+                    >
+                      {loading ? "..." : (translations[lang]?.searchBtn || "Caută")}
+                    </button>
+                  </form>
+
+                  {savedCities.length > 0 && (
+                    <div className={`w-full flex flex-wrap items-center gap-2 mt-3 animate-fadeIn px-2 ${currentTheme.textPrimary}`}>
+                      <span className="text-xs font-bold uppercase opacity-60 mr-1">{translations[lang]?.savedCities || "Salvate:"}</span>
+                      {savedCities.map((cityObj, idx) => (
+                        <button 
+                          key={idx}
+                          type="button"
+                          onClick={() => fetchWeatherByCoords(cityObj.lat, cityObj.lon, cityObj.city)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold transition-all active:scale-95 ${currentTheme.btnInactive}`}
+                        >
+                          {cityObj.city}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {statusMessage && (
+                  <div className={`text-sm px-4 py-2 rounded-full text-center font-bold border border-current/15 ${currentTheme.badgeBg}`}>
+                    {statusMessage}
+                  </div>
+                )}
+                
+                {locationWarning && (
+                  <div className="text-xs px-4 py-2 rounded-full border border-orange-500/20 bg-orange-500/10 text-orange-600 text-center flex items-center gap-2 font-semibold">
+                    <span>ℹ️</span> {locationWarning}
+                  </div>
+                )}
+
+                {weatherData && (
+                  <div className={`w-full rounded-3xl p-6 md:p-8 shadow-xl transition-all duration-700 flex flex-col items-center gap-6 ${currentTheme.cardBg} ${currentTheme.textPrimary}`}>
+                    
+                    <div className="flex border-b border-black/10 w-full mb-2 relative z-20">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('weather')}
+                        className={`flex-1 pb-3 text-xs sm:text-sm transition-all border-b-2 cursor-pointer ${
+                          activeTab === 'weather' 
+                            ? 'border-current font-bold opacity-100' 
+                            : 'border-transparent font-semibold opacity-50 hover:opacity-100'
+                        }`}
+                      >
+                        {translations[lang]?.weatherTab || "Vremea"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('tips')}
+                        className={`flex-1 pb-3 text-xs sm:text-sm transition-all border-b-2 cursor-pointer ${
+                          activeTab === 'tips' 
+                            ? 'border-current font-bold opacity-100' 
+                            : 'border-transparent font-semibold opacity-50 hover:opacity-100'
+                        }`}
+                      >
+                        {translations[lang]?.tipsTab || "Sfaturi"}
+                      </button>
+                    </div>
+
+                    {activeTab === 'weather' && (
+                      <div className="w-full flex flex-col gap-6">
+                        <div className="flex flex-col items-center gap-3">
+                          <span className={`text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${currentTheme.badgeBg}`}>
+                            {translations[lang]?.[`weather${weatherCategory.charAt(0).toUpperCase() + weatherCategory.slice(1)}`] || ""}
+                          </span>
+                          
+                          <div className="flex items-center justify-center gap-3 mt-1">
+                            <h2 className="text-2xl md:text-4xl font-light tracking-wide">{weatherData.city}</h2>
+                            <button 
+                              type="button"
+                              onClick={toggleSaveCity} 
+                              title={translations[lang]?.saveCity || "Salvează"}
+                              className={`p-2 rounded-full transition-all hover:scale-110 active:scale-90 ${isCurrentCitySaved ? 'text-yellow-500 drop-shadow-md' : 'opacity-40 hover:opacity-100 hover:bg-black/5'}`}
+                            >
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill={isCurrentCitySaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                          {renderWeatherIcon(weatherCategory)}
+                          <div className="text-center sm:text-left">
+                            <span className="text-7xl md:text-8xl font-thin tracking-tighter">{weatherData.temp}°</span>
+                            <p className={`text-sm font-semibold mt-1 ${currentTheme.textSecondary}`}>{translations[lang]?.feelsLike || "Se simte"}: {weatherData.feels}°C</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3 w-full pt-4 border-t border-black/10">
+                          <div className={`flex flex-col items-center p-3 rounded-2xl ${currentTheme.panelBg}`}>
+                            <span className={`text-[10px] sm:text-xs font-bold uppercase opacity-60 ${currentTheme.textSecondary}`}>{translations[lang]?.wind || "Vânt"}</span>
+                            <span className="text-sm sm:text-base font-bold mt-1">{weatherData.windspeed} km/h</span>
+                          </div>
+                          <div className={`flex flex-col items-center p-3 rounded-2xl ${currentTheme.panelBg}`}>
+                            <span className={`text-[10px] sm:text-xs font-bold uppercase opacity-60 ${currentTheme.textSecondary}`}>{translations[lang]?.humidity || "Umiditate"}</span>
+                            <span className="text-sm sm:text-base font-bold mt-1">{weatherData.humidity}%</span>
+                          </div>
+                          <div className={`flex flex-col items-center p-3 rounded-2xl ${currentTheme.panelBg}`}>
+                            <span className={`text-[10px] sm:text-xs font-bold uppercase opacity-60 ${currentTheme.textSecondary}`}>{translations[lang]?.precipitation || "Ploaie"}</span>
+                            <span className="text-sm sm:text-base font-bold mt-1">{weatherData.precipitation} mm</span>
+                          </div>
+                        </div>
+
+                        {weatherData.hourly && (
+                          <div className="w-full pt-4 border-t border-black/10">
+                            <h4 className="text-xs font-bold uppercase tracking-wider mb-3 opacity-60">{translations[lang]?.hourlyTitle || "Ore"}</h4>
+                            <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-none">
+                              {weatherData.hourly.map((h, i) => (
+                                <div key={i} className={`flex flex-col items-center min-w-[64px] p-2 rounded-xl ${currentTheme.panelBg}`}>
+                                  <span className="text-xs opacity-75">{h.time}</span>
+                                  <span className="text-lg my-1">{getWeatherEmoji(h.code)}</span>
+                                  <span className="text-sm font-bold">{h.temp}°</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {weatherData.daily && (
+                          <div className="w-full pt-4 border-t border-black/10">
+                            <h4 className="text-xs font-bold uppercase tracking-wider mb-3 opacity-60">{translations[lang]?.dailyTitle || "Zile"}</h4>
+                            <div className="flex flex-col gap-2">
+                              {weatherData.daily.map((d, i) => (
+                                <div key={i} className={`flex items-center justify-between p-3 rounded-xl text-sm ${currentTheme.panelBg}`}>
+                                  <span className="font-semibold w-16 uppercase">{d.day}</span>
+                                  
+                                  <div className="flex items-center gap-1 w-20">
+                                    <span className="text-xl">{getWeatherEmoji(d.code)}</span>
+                                    {d.precipProb > 0 && (
+                                      <span className={`text-[10px] font-bold ${currentTheme.isDark ? 'text-blue-300' : 'text-blue-600'} opacity-80`}>
+                                        {d.precipProb}%
+                                      </span>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="flex gap-2 font-bold justify-end w-16">
+                                    <span className="opacity-95">{d.max}°</span>
+                                    <span className="opacity-50">{d.min}°</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                      </div>
+                    )}
+
+                    {activeTab === 'tips' && (
+                      <div className="w-full flex flex-col gap-6 text-center min-h-[220px] justify-center">
+                        <div className="w-full">
+                          <h3 className={`text-xs font-bold tracking-wider uppercase opacity-60 mb-2 ${currentTheme.textSecondary}`}>
+                            {translations[lang]?.tipsTitle || "Sfaturi Vreme"}
+                          </h3>
+                          <div className={`text-sm md:text-base font-semibold leading-relaxed p-4 rounded-2xl border shadow-sm text-left ${currentTheme.panelBg} border-black/5`}>
+                            <span className="mr-2">💡</span>
+                            {appData[weatherCategory]?.tips?.[lang] || "O zi excelentă în perspectivă!"}
+                          </div>
+                        </div>
+
+                        <div className="w-full">
+                          <h3 className={`text-xs font-bold tracking-wider uppercase opacity-60 mb-2 ${currentTheme.textSecondary}`}>
+                            {translations[lang]?.[`period_${timePeriod}`] || "Ghidul tău"}
+                          </h3>
+                          <div className={`text-sm md:text-base font-semibold leading-relaxed p-4 rounded-2xl border shadow-sm text-left ${currentTheme.panelBg} border-black/5`}>
+                            <span className="mr-2">🧘‍♀️</span>
+                            {timeOfDayTipsData[timePeriod]?.[lang] || "Amintește-ți să iei o pauză."}
+                          </div>
+                        </div>
+
+                        <div className="w-full">
+                          <h3 className={`text-xs font-bold tracking-wider uppercase opacity-60 mb-2 ${currentTheme.textSecondary}`}>
+                            {translations[lang]?.generalTipsTitle || "Obiceiuri Sănătoase"}
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-left text-xs md:text-sm">
+                            {(generalTipsData[lang] || generalTipsData.en).map((tip, idx) => (
+                              <div key={idx} className={`p-3 rounded-xl border flex items-start gap-2 ${currentTheme.panelBg} border-black/5`}>
+                                <span className="text-sm">✨</span>
+                                <span>{tip}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                )}
+
+                <section className={`w-full rounded-3xl p-6 md:p-8 flex flex-col items-center gap-6 text-center shadow-lg mt-2 ${currentTheme.cardBg} ${currentTheme.textPrimary}`}>
+                  <div className="max-w-md">
+                    <h3 className="text-lg md:text-xl font-bold">{translations[lang]?.breathingTitle || "Respirație"}</h3>
+                    <p className={`text-xs mt-1 font-semibold ${currentTheme.textSecondary}`}>{translations[lang]?.breathingSubtitle || ""}</p>
+                  </div>
+
+                  <div className="h-44 w-44 flex items-center justify-center relative my-4">
+                    <div className="absolute inset-0 rounded-full border border-current border-opacity-20 animate-pulse"></div>
+                    
+                    <div 
+                      style={circleStyle}
+                      className="absolute rounded-full w-24 h-24 border border-white/20"
+                    ></div>
+                    
+                    <div 
+                      style={{ color: breathTextColor }}
+                      className="relative z-10 font-black text-xs uppercase tracking-widest text-center select-none"
+                    >
+                        {isBreathing ? (
+                          breathPhase === 'inhale' ? (translations[lang]?.inhale || "IN") :
+                          breathPhase === 'hold' ? (translations[lang]?.hold || "HOLD") :
+                          (translations[lang]?.exhale || "OUT")
+                        ) : ""}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsBreathing(!isBreathing);
+                        if(!isBreathing) setBreathCount(0);
+                      }}
+                      className={`px-8 py-3 rounded-full text-sm font-bold transition-all active:scale-95 ${
+                        isBreathing ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/30 border-none' : currentTheme.btnActive
+                      }`}
+                    >
+                      {isBreathing ? (translations[lang]?.stopBreathing || "Stop") : (translations[lang]?.startBreathing || "Start")}
+                    </button>
+                    {isBreathing && (
+                      <span className="text-xs opacity-70 mt-2 font-bold transition-opacity">
+                        {translations[lang]?.cyclesCompleted || "Cicluri"}: {breathCount}
+                      </span>
+                    )}
+                  </div>
+                </section>
+
+              </main>
+
+              <footer className={`w-full max-w-4xl text-center py-4 border-t border-black/10 mt-8 z-10 ${currentTheme.textPrimary}`}>
+                <p className="text-xs opacity-60 tracking-wide font-bold">
+                  {translations[lang]?.credits || ""}
+                </p>
+              </footer>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
