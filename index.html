@@ -7,6 +7,9 @@
     <meta name="apple-mobile-web-app-title" content="Just Weather">
     <meta name="application-name" content="Just Weather">
     
+    <!-- Link către Web Manifest pentru instalarea ca aplicație (Android/iOS) -->
+    <link rel="manifest" href="manifest.json">
+    
     <!-- Tailwind CSS (CDN pentru design) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -484,10 +487,11 @@
             return () => clearInterval(interval);
           }, []);
 
+          // REZOLVARE PRECIZIE VREME: Am inclus codul 1 în "clear" (senin/aproape senin)
           const getWeatherCategory = (code) => {
             if (code === undefined || code === null) return 'clear';
-            if (code === 0) return 'clear';
-            if (code >= 1 && code <= 3) return 'cloudy';
+            if (code === 0 || code === 1) return 'clear'; // 0 = senin perfect, 1 = aproape senin (nu mai este "înnorat")
+            if (code === 2 || code === 3) return 'cloudy'; // 2 = parțial înnorat, 3 = înnorat
             if (code === 45 || code === 48) return 'foggy';
             if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'rainy';
             if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return 'snowy';
@@ -532,16 +536,27 @@
               const hourly = weatherJson.hourly;
               const daily = weatherJson.daily;
 
+              // REZOLVARE PROGNOZĂ ORE: Luăm doar orele care încep de acum înainte
               const nextHours = [];
               if (hourly && hourly.time) {
-                for (let i = 0; i < 8; i++) {
+                const now = new Date();
+                const currentHourTime = now.getTime() - 60 * 60 * 1000; // Scădem o oră ca marjă de siguranță pentru a include ora curentă
+
+                for (let i = 0; i < hourly.time.length; i++) {
                   const timeVal = new Date(hourly.time[i]);
-                  const formattedTime = timeVal.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit', hour12: false });
-                  nextHours.push({
-                    time: formattedTime,
-                    temp: Math.round(hourly.temperature_2m[i]),
-                    code: hourly.weather_code[i]
-                  });
+                  
+                  // Verificăm dacă ora din API este mai mare sau egală cu ora curentă
+                  if (timeVal.getTime() >= currentHourTime) {
+                    const formattedTime = timeVal.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit', hour12: false });
+                    nextHours.push({
+                      time: formattedTime,
+                      temp: Math.round(hourly.temperature_2m[i]),
+                      code: hourly.weather_code[i]
+                    });
+                    
+                    // Oprim bucla când am adunat 8 ore viitoare
+                    if (nextHours.length >= 8) break;
+                  }
                 }
               }
 
@@ -679,8 +694,8 @@
           }, [isBreathing]);
 
           const getWeatherEmoji = (code) => {
-            if (code === 0) return "☀️";
-            if (code >= 1 && code <= 3) return "⛅";
+            if (code === 0 || code === 1) return "☀️";
+            if (code === 2 || code === 3) return "⛅";
             if (code === 45 || code === 48) return "🌫️";
             if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return "🌧️";
             if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return "❄️";
