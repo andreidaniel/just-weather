@@ -31,7 +31,13 @@ self.addEventListener('install', (event) => {
       return Promise.all(cachePromises);
     })
   );
-  self.skipWaiting();
+});
+
+// Message Event to force activation of waiting Service Worker
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
 
 // Activate Event
