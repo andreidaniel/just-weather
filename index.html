@@ -68,8 +68,7 @@
             const browserLang = navigator.language.split('-')[0].toLowerCase();
             const supported = ['ro', 'en', 'es', 'fr', 'zh'];
             return supported.includes(browserLang) ? browserLang : 'en';
-        };
-        const translations = {
+        };        const translations = {
           ro: {
             searchPlaceholder: "Caută un oraș...", detecting: "Se detectează...", detectError: "Căutare manuală necesară.", approxLocation: "Locație IP.",
             wind: "Vânt", humidity: "Umiditate", precipitation: "Precipitații", feelsLike: "Se simte ca",
@@ -83,7 +82,12 @@
             pressureAlert: "🌡️ Presiune atmosferică scăzută. Hidratează-te bine.",
             aqi: "Calitatea Aerului", aqiGood: "Excelentă", aqiFair: "Acceptabilă", aqiModerate: "Moderată", aqiPoor: "Scăzută", sunrise: "Răsărit", sunset: "Apus",
             appName: "Doar Vremea",
-            ambientTitle: "Sunete Ambientale", ambientPlay: "Ascultă vremea", ambientStop: "Oprește sunetul"
+            ambientTitle: "Terapie prin Sunet", ambientPlay: "Ascultă sunetul", ambientStop: "Oprește sunetul",
+            pinkNoise: "Zgomot Roz", brownNoise: "Zgomot Brun", whiteNoise: "Zgomot Alb", greenNoise: "Zgomot Verde",
+            pinkNoiseDesc: "Somn profund și memorie • Sună ca o ploaie caldă de vară",
+            brownNoiseDesc: "Relaxare musculară și ADHD • Sună ca un vuet profund de ocean",
+            whiteNoiseDesc: "Concentrare și scut fonic • Sună ca un ventilator stabil",
+            greenNoiseDesc: "Meditație și calmare • Sună ca foșnetul pădurilor și natura"
           },
           en: {
             searchPlaceholder: "Search city...", detecting: "Detecting...", detectError: "Manual search needed.", approxLocation: "IP Location.",
@@ -98,7 +102,12 @@
             pressureAlert: "🌡️ Low atmospheric pressure. Stay hydrated.",
             aqi: "Air Quality", aqiGood: "Excellent", aqiFair: "Fair", aqiModerate: "Moderate", aqiPoor: "Poor", sunrise: "Sunrise", sunset: "Sunset",
             appName: "Just Weather",
-            ambientTitle: "Ambient Sounds", ambientPlay: "Listen to weather", ambientStop: "Mute sounds"
+            ambientTitle: "Sound Therapy", ambientPlay: "Play sound", ambientStop: "Stop sound",
+            pinkNoise: "Pink Noise", brownNoise: "Brown Noise", whiteNoise: "White Noise", greenNoise: "Green Noise",
+            pinkNoiseDesc: "Deep sleep and memory • Sounds like a warm summer rain",
+            brownNoiseDesc: "Muscle relaxation and ADHD • Sounds like a deep ocean roar",
+            whiteNoiseDesc: "Focus and sound masking • Sounds like a steady fan noise",
+            greenNoiseDesc: "Meditation and calming • Sounds like a forest and nature vibe"
           },
           es: {
             searchPlaceholder: "Buscar ciudad...", detecting: "Detectando...", detectError: "Búsqueda manual necesaria.", approxLocation: "Ubicación IP.",
@@ -113,7 +122,12 @@
             pressureAlert: "🌡️ Presión baja. Mantente hidratado.",
             aqi: "Calidad del Aire", aqiGood: "Excelente", aqiFair: "Aceptable", aqiModerate: "Moderada", aqiPoor: "Pobre", sunrise: "Amanecer", sunset: "Atardecer",
             appName: "Solo Clima",
-            ambientTitle: "Sonidos Ambientales", ambientPlay: "Escuchar el clima", ambientStop: "Silenciar sonidos"
+            ambientTitle: "Terapia de Sonido", ambientPlay: "Escuchar sonido", ambientStop: "Detener sonido",
+            pinkNoise: "Ruido Rosa", brownNoise: "Ruido Marrón", whiteNoise: "Ruido Blanco", greenNoise: "Ruido Verde",
+            pinkNoiseDesc: "Sueño profundo y memoria • Suena como lluvia de verano",
+            brownNoiseDesc: "Relajación y TDAH • Suena como el rugido del océano",
+            whiteNoiseDesc: "Enfoque y bloqueo de ruido • Suena como un ventilador estable",
+            greenNoiseDesc: "Meditación y calma • Suena como bosque y naturaleza"
           },
           fr: {
             searchPlaceholder: "Rechercher...", detecting: "Détection...", detectError: "Recherche manuelle.", approxLocation: "Position IP.",
@@ -128,7 +142,12 @@
             pressureAlert: "🌡️ Basse pression. Restez hydraté.",
             aqi: "Qualité de l'Air", aqiGood: "Excellente", aqiFair: "Acceptable", aqiModerate: "Modérée", aqiPoor: "Médiocre", sunrise: "Lever", sunset: "Coucher",
             appName: "Juste Météo",
-            ambientTitle: "Sons Ambiants", ambientPlay: "Écouter le temps", ambientStop: "Couper les sons"
+            ambientTitle: "Thérapie par le Son", ambientPlay: "Écouter le son", ambientStop: "Arrêter le son",
+            pinkNoise: "Bruit Rose", brownNoise: "Bruit Brun", whiteNoise: "Bruit Blanc", greenNoise: "Bruit Vert",
+            pinkNoiseDesc: "Sommeil profond et mémoire • Sonne comme une pluie d'été",
+            brownNoiseDesc: "Relaxation et TDAH • Sonne comme le grondement d'océan",
+            whiteNoiseDesc: "Focus et masque sonore • Sonne comme un ventilateur stable",
+            greenNoiseDesc: "Méditation et apaisement • Sonne comme la forêt et la nature"
           },
           zh: {
             searchPlaceholder: "搜索城市...", detecting: "定位中...", detectError: "需要手动搜索。", approxLocation: "IP位置。",
@@ -143,7 +162,12 @@
             pressureAlert: "🌡️ 气压低。请保持水分。",
             aqi: "空气质量", aqiGood: "优", aqiFair: "良", aqiModerate: "轻度污染", aqiPoor: "重度污染", sunrise: "日出", sunset: "日落",
             appName: "极简天气",
-            ambientTitle: "环境音效", ambientPlay: "聆听天气", ambientStop: "静音声音"
+            ambientTitle: "声音疗法", ambientPlay: "播放声音", ambientStop: "停止声音",
+            pinkNoise: "粉红噪音", brownNoise: "棕色噪音", whiteNoise: "白噪音", greenNoise: "绿噪音",
+            pinkNoiseDesc: "深度睡眠与记忆 • 听起来像温暖的夏雨",
+            brownNoiseDesc: "肌肉放松与多动症 • 听起来像深海的咆哮",
+            whiteNoiseDesc: "专注与隔音屏障 • 听起来像稳定的风扇声",
+            greenNoiseDesc: "冥想与平静 • 听起来像森林与自然氛围"
           }
         };
 
@@ -200,17 +224,32 @@
             const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const output = noiseBuffer.getChannelData(0);
             
-            if (type === "cozy") {
+            if (type === "white") {
+              for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+              }
+            } else if (type === "pink" || type === "green") {
+              // Voss-McCartney algorithm for pink noise
+              let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+              for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                b6 = white * 0.115926;
+                output[i] *= 0.11; // scale to avoid clipping
+              }
+            } else if (type === "brown") {
               let lastOut = 0.0;
               for (let i = 0; i < bufferSize; i++) {
                 const white = Math.random() * 2 - 1;
                 output[i] = (lastOut + (0.02 * white)) / 1.02;
                 lastOut = output[i];
                 output[i] *= 3.5;
-              }
-            } else {
-              for (let i = 0; i < bufferSize; i++) {
-                output[i] = Math.random() * 2 - 1;
               }
             }
             
@@ -221,43 +260,28 @@
             const filter = ctx.createBiquadFilter();
             const mainGain = ctx.createGain();
             
-            if (type === "rain") {
-              filter.type = 'bandpass';
-              filter.frequency.value = 1200;
-              filter.Q.value = 1.2;
-              mainGain.gain.value = 0.08;
-              
-              noiseSource.connect(filter);
-              filter.connect(mainGain);
-            } else if (type === "cozy") {
+            if (type === "pink") {
+              mainGain.gain.value = 0.18;
+              noiseSource.connect(mainGain);
+            } else if (type === "brown") {
               filter.type = 'lowpass';
-              filter.frequency.value = 250;
+              filter.frequency.value = 400;
               mainGain.gain.value = 0.22;
-              
               noiseSource.connect(filter);
               filter.connect(mainGain);
-            } else {
+            } else if (type === "white") {
+              filter.type = 'lowpass';
+              filter.frequency.value = 8000;
+              mainGain.gain.value = 0.06;
+              noiseSource.connect(filter);
+              filter.connect(mainGain);
+            } else if (type === "green") {
               filter.type = 'bandpass';
-              filter.frequency.value = 450;
-              filter.Q.value = 2.8;
-              mainGain.gain.value = 0.07;
-              
-              const lfo = ctx.createOscillator();
-              lfo.frequency.value = 0.08;
-              
-              const lfoGain = ctx.createGain();
-              lfoGain.gain.value = 160;
-              
-              lfo.connect(lfoGain);
-              lfoGain.connect(filter.frequency);
-              
+              filter.frequency.value = 800;
+              filter.Q.value = 0.8;
+              mainGain.gain.value = 0.25;
               noiseSource.connect(filter);
               filter.connect(mainGain);
-              lfo.start();
-              
-              noiseSource.onended = () => {
-                try { lfo.stop(); } catch(e){}
-              };
             }
             
             mainGain.connect(ctx.destination);
@@ -300,6 +324,7 @@
           const breathTimerRef = useRef(null);
 
           const [isSoundPlaying, setIsSoundPlaying] = useState(false);
+          const [selectedSound, setSelectedSound] = useState(() => safeGetLocal('jw_ambient_type', 'pink'));
           const activeSoundRef = useRef(null);
 
           const [isSystemDark, setIsSystemDark] = useState(() => {
@@ -318,6 +343,7 @@
 
           useEffect(() => { safeSetLocal('jw_lang', lang); }, [lang]);
           useEffect(() => { safeSetLocal('jw_cities', savedCities); }, [savedCities]);
+          useEffect(() => { safeSetLocal('jw_ambient_type', selectedSound); }, [selectedSound]);
 
           useEffect(() => {
             const updatePeriod = () => {
@@ -600,22 +626,15 @@
             return () => clearTimeout(timer);
           }, [searchQuery, lang]);
 
-          // Ambient soundscape playback control based on weatherCategory
+          // Ambient soundscape playback control based on selectedSound and isSoundPlaying
           useEffect(() => {
-            if (isSoundPlaying && weatherCategory) {
+            if (isSoundPlaying && selectedSound) {
               if (activeSoundRef.current) {
                 activeSoundRef.current.stop();
                 activeSoundRef.current = null;
               }
               
-              let soundType = "wind";
-              if (weatherCategory === "rainy" || weatherCategory === "stormy") {
-                soundType = "rain";
-              } else if (weatherCategory === "snowy") {
-                soundType = "cozy";
-              }
-              
-              activeSoundRef.current = playSynthesizedSound(soundType);
+              activeSoundRef.current = playSynthesizedSound(selectedSound);
             } else {
               if (activeSoundRef.current) {
                 activeSoundRef.current.stop();
@@ -629,7 +648,7 @@
                 activeSoundRef.current = null;
               }
             };
-          }, [isSoundPlaying, weatherCategory]);
+          }, [isSoundPlaying, selectedSound]);
 
           // Breathing Coach
           useEffect(() => {
@@ -697,6 +716,22 @@
               case 'foggy': return <svg className={`${defaultClass} ${currentTheme.iconColor} animate-pulse`} fill="none" viewBox="0 0 24 24" strokeWidth="1.2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M5 18h14" /></svg>;
               default: return null;
             }
+          };
+
+          const getSoundBtnClass = (soundType, isActive) => {
+            const base = "flex-grow flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold transition-all border active:scale-95";
+            if (isActive) {
+              if (soundType === 'pink') {
+                return `${base} ${currentTheme.isDark ? 'bg-rose-950/40 border-rose-500/30 text-rose-200 shadow-md shadow-rose-950/20' : 'bg-rose-500/10 border-rose-500/30 text-rose-900 shadow-sm shadow-rose-500/10'}`;
+              } else if (soundType === 'brown') {
+                return `${base} ${currentTheme.isDark ? 'bg-amber-950/40 border-amber-500/30 text-amber-200 shadow-md shadow-amber-950/20' : 'bg-amber-500/10 border-amber-500/30 text-amber-900 shadow-sm shadow-amber-500/10'}`;
+              } else if (soundType === 'white') {
+                return `${base} ${currentTheme.isDark ? 'bg-zinc-800/60 border-zinc-700/60 text-zinc-100 shadow-md shadow-zinc-800/20' : 'bg-zinc-100 border-zinc-300 text-zinc-900 shadow-sm shadow-zinc-100/10'}`;
+              } else if (soundType === 'green') {
+                return `${base} ${currentTheme.isDark ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-200 shadow-md shadow-emerald-950/20' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-900 shadow-sm shadow-emerald-500/10'}`;
+              }
+            }
+            return `${base} border-transparent bg-black/5 dark:bg-white/5 text-current opacity-55 hover:opacity-90`;
           };
 
           const circleStyle = {
@@ -977,18 +1012,49 @@
                     {isBreathing && <span className="text-[10px] uppercase tracking-widest opacity-60 mt-2 font-bold">{translations[lang]?.cyclesCompleted}: {breathCount}</span>}
 
                     {/* Ambient Sounds Controller */}
-                    <div className="w-full mt-4 pt-4 border-t border-black/5 dark:border-white/10 flex flex-col items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                    <div className="w-full mt-6 pt-5 border-t border-black/5 dark:border-white/10 flex flex-col items-center gap-4">
+                      <span className="text-[10px] font-bold uppercase tracking-widest opacity-65">
                         🔊 {translations[lang]?.ambientTitle}
                       </span>
+                      
+                      {/* Grid 2x2 Selector */}
+                      <div className="grid grid-cols-2 gap-2.5 w-full max-w-sm">
+                        {['pink', 'brown', 'white', 'green'].map((soundKey) => {
+                          const isActive = selectedSound === soundKey;
+                          return (
+                            <button
+                              key={soundKey}
+                              type="button"
+                              onClick={() => { setSelectedSound(soundKey); triggerVibration(20); }}
+                              className={getSoundBtnClass(soundKey, isActive)}
+                            >
+                              <span className="text-xs">
+                                {soundKey === 'pink' ? '🌸' : soundKey === 'brown' ? '🤎' : soundKey === 'white' ? '🤍' : '💚'}
+                              </span>
+                              <span>
+                                {translations[lang]?.[soundKey + 'Noise']}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Beneficiu Terapeutic */}
+                      <div className={`text-xs font-semibold px-4 py-3 rounded-2xl w-full max-w-sm ${currentTheme.panelBg} leading-relaxed transition-all duration-300`}>
+                        {translations[lang]?.[selectedSound + 'NoiseDesc']}
+                      </div>
+
+                      {/* Butonul Play/Pause */}
                       <button
                         type="button"
                         onClick={() => { setIsSoundPlaying(!isSoundPlaying); triggerVibration(15); }}
-                        className={`px-6 py-2.5 rounded-full text-xs font-bold transition-all active:scale-95 flex items-center gap-2 ${
-                          isSoundPlaying ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : currentTheme.btnInactive
+                        className={`px-8 py-3 rounded-full text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                          isSoundPlaying 
+                            ? 'bg-rose-500/80 hover:bg-rose-500 text-white shadow-lg shadow-rose-500/20' 
+                            : currentTheme.btnActive
                         }`}
                       >
-                        <span>
+                        <span className="text-sm">
                           {isSoundPlaying ? "⏸️" : "▶️"}
                         </span>
                         <span>
