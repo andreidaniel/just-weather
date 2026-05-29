@@ -196,7 +196,6 @@
           const [statusMessage, setStatusMessage] = useState("");
           const [locationWarning, setLocationWarning] = useState("");
           const [timePeriod, setTimePeriod] = useState("morning");
-          const [mindfulAlert, setMindfulAlert] = useState(null);
           const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
           
           const [isBreathing, setIsBreathing] = useState(false);
@@ -262,6 +261,15 @@
           const currentTheme = isSystemDark ? darkThemes[weatherCategory] : lightThemes[weatherCategory];
           const isCurrentCitySaved = weatherData && savedCities.some(c => c.city === weatherData.city);
 
+          let mindfulAlert = null;
+          if (weatherData) {
+            if (weatherData.surfacePressure < 1005) {
+              mindfulAlert = translations[lang]?.pressureAlert || "";
+            } else if (weatherData.uvIndexMax > 6) {
+              mindfulAlert = translations[lang]?.uvAlert || "";
+            }
+          }
+
           const triggerVibration = (pattern) => {
               if (typeof window !== 'undefined' && 'vibrate' in navigator) {
                   try { navigator.vibrate(pattern); } catch(e) {}
@@ -318,9 +326,9 @@
                 try {
                   const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`);
                   const geoJson = await geoRes.json();
-                  resolvedCityName = geoJson.address?.city || geoJson.address?.town || geoJson.address?.village || translations[lang].currentLocation;
+                  resolvedCityName = geoJson.address?.city || geoJson.address?.town || geoJson.address?.village || "currentLocation";
                 } catch (e) {
-                  resolvedCityName = translations[lang].currentLocation;
+                  resolvedCityName = "currentLocation";
                 }
               }
 
@@ -336,7 +344,7 @@
                   const timeVal = new Date(hourly.time[i]);
                   if (timeVal.getTime() >= currentHourTime) {
                     nextHours.push({ 
-                        time: formatTime(hourly.time[i]), 
+                        time: hourly.time[i], 
                         temp: Math.round(hourly.temperature_2m[i]), 
                         code: hourly.weather_code[i],
                         precipProb: hourly.precipitation_probability[i] || 0
@@ -349,9 +357,8 @@
               const nextDays = [];
               if (daily && daily.time) {
                 for (let i = 1; i < 6; i++) {
-                  const dateVal = new Date(daily.time[i]);
                   nextDays.push({
-                    day: dateVal.toLocaleDateString(lang, { weekday: 'short' }),
+                    day: daily.time[i],
                     code: daily.weather_code[i], 
                     max: Math.round(daily.temperature_2m_max[i]),
                     min: Math.round(daily.temperature_2m_min[i]), 
@@ -366,19 +373,14 @@
                 precipitation: current.precipitation || 0, city: resolvedCityName, lat: lat, lon: lon,
                 hourly: nextHours, daily: nextDays,
                 aqi: aqiValue,
-                sunrise: daily.sunrise ? formatTime(daily.sunrise[0]) : "--:--",
-                sunset: daily.sunset ? formatTime(daily.sunset[0]) : "--:--"
+                sunrise: daily.sunrise ? daily.sunrise[0] : null,
+                sunset: daily.sunset ? daily.sunset[0] : null,
+                surfacePressure: current.surface_pressure,
+                uvIndexMax: daily.uv_index_max ? daily.uv_index_max[0] : null
               };
 
               setWeatherData(newWeatherData);
               safeSetLocal('jw_lastloc', newWeatherData);
-
-              setMindfulAlert(null);
-              if (current.surface_pressure < 1005) {
-                  setMindfulAlert(translations[lang].pressureAlert);
-              } else if (daily.uv_index_max?.[0] > 6) {
-                  setMindfulAlert(translations[lang].uvAlert);
-              }
 
               setStatusMessage("");
             } catch (error) {
@@ -639,7 +641,7 @@
                           key={idx} type="button" onClick={() => { fetchWeatherByCoords(cityObj.lat, cityObj.lon, cityObj.city); triggerVibration(20); }}
                           className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-90 shadow-sm border border-white/10 ${currentTheme.btnInactive}`}
                         >
-                          {cityObj.city}
+                          {cityObj.city === "currentLocation" ? translations[lang].currentLocation : cityObj.city}
                         </button>
                       ))}
                     </div>
@@ -683,7 +685,7 @@
                             {getWeatherDesc(weatherData.code)}
                           </span>
                           <div className="flex items-center justify-center gap-3 mt-2">
-                            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">{weatherData.city}</h2>
+                            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">{weatherData.city === "currentLocation" ? translations[lang].currentLocation : weatherData.city}</h2>
                             <button onClick={toggleSaveCity} className={`p-2.5 rounded-full transition-all active:scale-75 ${isCurrentCitySaved ? 'text-yellow-500 drop-shadow-md' : 'opacity-30 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5'}`}>
                               <svg width="24" height="24" viewBox="0 0 24 24" fill={isCurrentCitySaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                             </button>
@@ -708,8 +710,8 @@
 
                         {/* Răsărit și Apus */}
                         <div className={`w-full flex justify-between px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest ${currentTheme.panelBg} opacity-80`}>
-                            <div className="flex items-center gap-2">🌅 {translations[lang].sunrise} <span className="font-semibold">{weatherData.sunrise}</span></div>
-                            <div className="flex items-center gap-2">🌇 {translations[lang].sunset} <span className="font-semibold">{weatherData.sunset}</span></div>
+                            <div className="flex items-center gap-2">🌅 {translations[lang].sunrise} <span className="font-semibold">{weatherData.sunrise ? formatTime(weatherData.sunrise) : "--:--"}</span></div>
+                            <div className="flex items-center gap-2">🌇 {translations[lang].sunset} <span className="font-semibold">{weatherData.sunset ? formatTime(weatherData.sunset) : "--:--"}</span></div>
                         </div>
 
                         <div className="grid grid-cols-3 gap-3 w-full">
@@ -733,7 +735,7 @@
                             <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-none">
                               {weatherData.hourly.map((h, i) => (
                                 <div key={i} className={`flex flex-col items-center min-w-[70px] p-3 rounded-2xl ${currentTheme.panelBg}`}>
-                                  <span className="text-xs opacity-70 font-semibold">{h.time}</span>
+                                  <span className="text-xs opacity-70 font-semibold">{formatTime(h.time)}</span>
                                   <span className="text-xl my-2 drop-shadow-sm">{getWeatherEmoji(h.code, h.precipProb)}</span>
                                   {h.precipProb > 0 ? (
                                     <span className={`text-[10px] font-bold ${isSystemDark ? 'text-blue-300' : 'text-blue-600'} opacity-90 -mt-1 mb-1`}>{h.precipProb}%</span>
@@ -751,7 +753,7 @@
                             <div className="flex flex-col gap-2">
                               {weatherData.daily.map((d, i) => (
                                 <div key={i} className={`flex items-center justify-between p-4 rounded-2xl text-sm ${currentTheme.panelBg}`}>
-                                  <span className="font-bold w-16 uppercase opacity-90">{d.day}</span>
+                                  <span className="font-bold w-16 uppercase opacity-90">{new Date(d.day).toLocaleDateString(lang, { weekday: 'short' })}</span>
                                   <div className="flex items-center gap-2 w-20">
                                     <span className="text-xl drop-shadow-sm">{getWeatherEmoji(d.code, d.precipProb)}</span>
                                     {d.precipProb > 0 && <span className={`text-[10px] font-bold ${isSystemDark ? 'text-blue-300 bg-blue-900/30' : 'text-blue-600 bg-blue-500/10'} opacity-90 px-2 py-0.5 rounded-full`}>{d.precipProb}%</span>}
