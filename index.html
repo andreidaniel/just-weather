@@ -91,7 +91,12 @@
             natureOverlayToggle: "Efecte din natură active",
             updateTitle: "Versiune Nouă Disponibilă",
             updateText: "O versiune mai recentă a aplicației este disponibilă. Reîncarcă pagina pentru a o aplica.",
-            updateBtn: "Reîncarcă"
+            updateBtn: "Reîncarcă",
+            installPrompt: "Instalează aplicația pentru o experiență completă și acces rapid.",
+            installBtn: "Instalează",
+            installLater: "Mai târziu",
+            iosInstallTitle: "Instalează Doar Vremea",
+            iosInstallInstructions: "Apasă pe pictograma de partajare 📤 și selectează „Adaugă pe ecranul de pornire” ➕."
           },
           en: {
             searchPlaceholder: "Search city...", detecting: "Detecting...", detectError: "Manual search needed.", approxLocation: "IP Location.",
@@ -115,7 +120,12 @@
             natureOverlayToggle: "Nature overlays active",
             updateTitle: "New Version Available",
             updateText: "A newer version of the app is available. Reload the page to apply the update.",
-            updateBtn: "Reload"
+            updateBtn: "Reload",
+            installPrompt: "Install the app for a complete experience and quick offline access.",
+            installBtn: "Install",
+            installLater: "Later",
+            iosInstallTitle: "Install Just Weather",
+            iosInstallInstructions: "Tap the share button 📤 and select 'Add to Home Screen' ➕."
           },
           es: {
             searchPlaceholder: "Buscar ciudad...", detecting: "Detectando...", detectError: "Búsqueda manual necesaria.", approxLocation: "Ubicación IP.",
@@ -139,7 +149,12 @@
             natureOverlayToggle: "Efectos naturales activos",
             updateTitle: "Nueva Versión Disponible",
             updateText: "Hay una nueva versión de la aplicación disponible. Recarga la página para aplicarla.",
-            updateBtn: "Recargar"
+            updateBtn: "Recargar",
+            installPrompt: "Instala la aplicación para una experiencia completa y acceso rápido offline.",
+            installBtn: "Instalar",
+            installLater: "Más tarde",
+            iosInstallTitle: "Instalar Solo Clima",
+            iosInstallInstructions: "Toca el botón compartir 📤 y selecciona 'Añadir a la pantalla de inicio' ➕."
           },
           fr: {
             searchPlaceholder: "Rechercher...", detecting: "Détection...", detectError: "Recherche manuelle.", approxLocation: "Position IP.",
@@ -163,7 +178,12 @@
             natureOverlayToggle: "Effets nature actifs",
             updateTitle: "Nouvelle Version Disponible",
             updateText: "Une nouvelle version de l'application est disponible. Rechargez la page pour l'appliquer.",
-            updateBtn: "Recharger"
+            updateBtn: "Recharger",
+            installPrompt: "Installez l'application pour une expérience complète et un accès hors ligne rapide.",
+            installBtn: "Installer",
+            installLater: "Plus tard",
+            iosInstallTitle: "Installer Juste Météo",
+            iosInstallInstructions: "Appuyez sur le bouton de partage 📤 et sélectionnez 'Sur l'écran d'accueil' ➕."
           },
           zh: {
             searchPlaceholder: "搜索城市...", detecting: "定位中...", detectError: "需要手动搜索。", approxLocation: "IP位置。",
@@ -187,7 +207,12 @@
             natureOverlayToggle: "叠加自然环境音效",
             updateTitle: "新版本可用",
             updateText: "有新版本的应用可用。请重新加载页面以应用更新。",
-            updateBtn: "重新加载"
+            updateBtn: "重新加载",
+            installPrompt: "安装应用以获得完整体验和快速离线访问。",
+            installBtn: "安装",
+            installLater: "稍后",
+            iosInstallTitle: "安装极简天气",
+            iosInstallInstructions: "点击分享按钮 📤 并选择“添加到主屏幕” ➕。"
           }
         };
 
@@ -320,13 +345,13 @@
               rainFilter.frequency.value = 2500;
               
               const rainGain = ctx.createGain();
-              rainGain.gain.value = 0.02;
+              rainGain.gain.value = 0.15;
               
               const rainLFO = ctx.createOscillator();
               rainLFO.frequency.value = 0.5;
               
               const rainLFOGain = ctx.createGain();
-              rainLFOGain.gain.value = 0.01;
+              rainLFOGain.gain.value = 0.06;
               
               rainLFO.connect(rainLFOGain);
               rainLFOGain.connect(rainGain.gain);
@@ -345,10 +370,10 @@
               const windFilter = ctx.createBiquadFilter();
               windFilter.type = 'bandpass';
               windFilter.frequency.value = 450;
-              windFilter.Q.value = 1.8;
+              windFilter.Q.value = 2.5;
               
               const windGain = ctx.createGain();
-              windGain.gain.value = 0.035;
+              windGain.gain.value = 0.18;
               
               const windLFO = ctx.createOscillator();
               windLFO.frequency.value = 0.08;
@@ -376,7 +401,7 @@
               breezeFilter.Q.value = 0.9;
               
               const breezeGain = ctx.createGain();
-              breezeGain.gain.value = 0.015;
+              breezeGain.gain.value = 0.12;
               
               const breezeLFO = ctx.createOscillator();
               breezeLFO.frequency.value = 0.18;
@@ -447,6 +472,10 @@
 
           const [showUpdateToast, setShowUpdateToast] = useState(false);
           const waitingWorkerRef = useRef(null);
+
+          const [deferredPrompt, setDeferredPrompt] = useState(null);
+          const [showInstallBanner, setShowInstallBanner] = useState(false);
+          const [showIosTooltip, setShowIosTooltip] = useState(false);
 
           const [isSystemDark, setIsSystemDark] = useState(() => {
             if (typeof window !== 'undefined') {
@@ -520,6 +549,62 @@
               waitingWorkerRef.current.postMessage({ action: 'skipWaiting' });
             }
             setShowUpdateToast(false);
+          };
+
+          useEffect(() => {
+            // Check if app is already running in standalone/installed mode (or TWA wrapper)
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+              || window.navigator.standalone 
+              || document.referrer.includes('android-app://');
+            
+            if (isStandalone) return;
+
+            // 1. Android / PC install prompt handler
+            const handleBeforeInstallPrompt = (e) => {
+              e.preventDefault();
+              setDeferredPrompt(e);
+              const isDismissed = localStorage.getItem('jw_install_dismissed');
+              if (!isDismissed) {
+                setShowInstallBanner(true);
+              }
+            };
+
+            window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+            // 2. iOS Safari Tooltip check
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            const isIosDismissed = localStorage.getItem('jw_ios_install_dismissed');
+
+            if (isIOS && isSafari && !isIosDismissed) {
+              setShowIosTooltip(true);
+            }
+
+            return () => {
+              window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            };
+          }, []);
+
+          const handleInstallClick = async () => {
+            if (!deferredPrompt) return;
+            triggerVibration(20);
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`PWA install prompt choice: ${outcome}`);
+            setDeferredPrompt(null);
+            setShowInstallBanner(false);
+          };
+
+          const handleDismissInstall = () => {
+            triggerVibration(10);
+            localStorage.setItem('jw_install_dismissed', 'true');
+            setShowInstallBanner(false);
+          };
+
+          const handleDismissIosTooltip = () => {
+            triggerVibration(10);
+            localStorage.setItem('jw_ios_install_dismissed', 'true');
+            setShowIosTooltip(false);
           };
 
           useEffect(() => {
@@ -983,6 +1068,32 @@
               </header>
               <main className="w-full max-w-xl flex-grow flex flex-col justify-start items-center z-10 gap-6">
                 
+                {/* PWA INSTALL BANNER FOR ANDROID/PC */}
+                {showInstallBanner && (
+                  <div className={`w-full rounded-3xl p-4 md:p-5 border backdrop-blur-3xl shadow-xl flex items-center justify-between gap-4 animate-fadeIn relative z-40 ${currentTheme.cardBg} ${currentTheme.textPrimary}`}>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl shrink-0">📲</span>
+                      <p className="text-[11px] font-semibold leading-relaxed">
+                        {translations[lang]?.installPrompt}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button 
+                        onClick={handleDismissInstall}
+                        className="px-3 py-1.5 rounded-xl text-[10px] font-bold opacity-60 hover:opacity-100 transition-opacity"
+                      >
+                        {translations[lang]?.installLater}
+                      </button>
+                      <button 
+                        onClick={handleInstallClick}
+                        className="px-3.5 py-1.5 rounded-xl text-[10px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20 active:scale-95 transition-all"
+                      >
+                        {translations[lang]?.installBtn}
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
                 {/* Search Bar Wrapper cu Z-Index mărit (Fix pentru dropdown ascuns) */}
                 <div className="w-full animate-fadeIn relative z-50">
                   <form onSubmit={handleSearch} className="w-full flex gap-3 relative z-50">
@@ -1343,6 +1454,25 @@
                       {translations[lang]?.updateBtn}
                     </button>
                   </div>
+                </div>
+              )}
+
+              {showIosTooltip && (
+                <div className={`fixed bottom-6 left-4 right-4 z-[9999] rounded-2xl border backdrop-blur-3xl shadow-2xl p-5 flex flex-col gap-3 max-w-md mx-auto animate-fadeInDrop ${currentTheme.cardBg} ${currentTheme.textPrimary}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="font-bold text-sm tracking-wide">
+                      {translations[lang]?.iosInstallTitle}
+                    </h4>
+                    <button 
+                      onClick={handleDismissIosTooltip}
+                      className="p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg opacity-60 hover:opacity-100 transition-all text-xs leading-none"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <p className="text-xs opacity-85 leading-relaxed">
+                    {translations[lang]?.iosInstallInstructions}
+                  </p>
                 </div>
               )}
             </div>
