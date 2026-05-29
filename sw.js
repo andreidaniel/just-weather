@@ -2,6 +2,7 @@ const CACHE_NAME = 'just-weather-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './privacy.html',
   './manifest.json',
   './manifest-ro.json',
   './manifest-en.json',
