@@ -16,13 +16,14 @@
     <!-- Link către Web Manifest -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- Tipografie Premium: Plus Jakarta Sans -->
+    <!-- Tipografie Premium: Plus Jakarta Sans & CDN Preconnects -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Static Compiled Tailwind CSS -->
+    <link rel="stylesheet" href="style.css">
     
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -30,24 +31,6 @@
     
     <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
-        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes fadeInDrop { from { opacity: 0; transform: translateY(-10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .animate-spin-slow { animation: spin-slow 20s linear infinite; }
-        .animate-bounce-slow { animation: bounce-slow 4s ease-in-out infinite; }
-        .animate-fadeInDrop { animation: fadeInDrop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: top right; }
-        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
-        
-        .scrollbar-none::-webkit-scrollbar { display: none; }
-        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        * { -webkit-tap-highlight-color: transparent; }
-    </style>
 </head>
 <body class="antialiased overflow-x-hidden transition-colors duration-1000 bg-zinc-950">
     
@@ -216,28 +199,79 @@
           }
         };
 
-        const timeOfDayTipsData = {
-          morning: { ro: "Începe dimineața cu un pahar de apă și 5 minute de respirație profundă.", en: "Start your morning with a glass of water and 5 minutes of breathing.", es: "Comienza con un vaso de agua y 5 minutos de respiración.", fr: "Commencez avec un verre d'eau et 5 minutes de respiration.", zh: "清晨从一杯水开始，进行5分钟的深呼吸。" },
-          afternoon: { ro: "O scurtă pauză de stretching îți va reda claritatea mentală.", en: "A short stretching break will restore your mental clarity.", es: "Un breve descanso te ayudará a recuperar claridad mental.", fr: "Une courte pause d'étirement vous redonnera de la clarté.", zh: "短暂的拉伸休息有助于恢复清晰的思维。" },
-          evening: { ro: "Lasă mintea să se liniștească. Oferă-ți timp ție însuți.", en: "Let your mind settle. Give yourself some time.", es: "Deja que tu mente descanse. Date tiempo para ti.", fr: "Laissez votre esprit s'apaiser. Prenez du temps pour vous.", zh: "让思绪慢下来，留出时间与自己相处。" },
-          night: { ro: "Pregătește-te pentru un somn odihnitor. Eliberează tensiunea zilei.", en: "Prepare for a restful sleep. Release the day's tension.", es: "Prepárate para un sueño reparador. Libera tensiones.", fr: "Préparez-vous à un sommeil réparateur. Libérez les tensions.", zh: "准备进入梦乡，释放全天的压力。" }
+        const timeOfDayTipsList = {
+          morning: [
+            { ro: "Începe dimineața cu un pahar de apă și 5 minute de respirație profundă pentru a-ți trezi metabolismul.", en: "Start your morning with a glass of water and 5 minutes of deep breathing to awaken your metabolism.", es: "Empieza el día con un vaso de agua y 5 minutes de respiración profunda para activar tu metabolismo.", fr: "Commencez votre journée par un verre d'eau et 5 minutes de respiration profonde pour réveiller votre métabolisme.", zh: "清晨从一杯温水和5分钟的深呼吸开始，以此唤醒身体的新陈代谢。" },
+            { ro: "Evită verificarea telefonului în primele 15 minute după trezire. Oferă-i minții tale un start liniștit.", en: "Avoid checking your phone for the first 15 minutes after waking up. Give your mind a calm start.", es: "Evita revisar el móvil los primeros 15 minutos al despertar. Dale a tu mente un comienzo tranquilo.", fr: "Évitez de regarder votre téléphone les 15 premières minutes après le réveil. Offrez-vous un réveil serein.", zh: "醒来后的前15分钟避免查看手机。给你的心灵一个平静的开始。" },
+            { ro: "Expunerea la lumină naturală în prima oră de la trezire reglează secreția de cortizol și hormonii de somn.", en: "Exposure to natural light within the first hour of waking regulates cortisol secretion and sleep hormones.", es: "La exposición a luz natural durante la primera hora al despertar regula el cortisol y las hormonas del sueño.", fr: "L'exposition à la lumière naturelle dans la première heure après le réveil régule le cortisol et l'endormissement.", zh: "醒来后一小时内接触自然光线可以调节皮质醇分泌和睡眠激素。" }
+          ],
+          afternoon: [
+            { ro: "O scurtă pauză de stretching sau o plimbare de 5 minute îți va reda claritatea mentală și energia.", en: "A short stretching break or a 5-minute walk will restore your mental clarity and energy levels.", es: "Un breve descanso para estirarte o caminar 5 minutos te devolverá la claridad mental y energía.", fr: "Une courte pause d'étirement ou 5 minutes de marche vous redonnera de la clarté et de l'énergie.", zh: "短暂的拉伸休息或5分钟的散步可以恢复你的思维清晰度和能量水平。" },
+            { ro: "După prânz, digestia consumă energie. Evită gustările cu zahăr rafinat pentru a nu avea o scădere bruscă de tonus.", en: "After lunch, digestion consumes energy. Avoid sugary snacks to prevent a sudden energy crash.", es: "Tras comer, la digestión consume energía. Evita snacks azucarados para prevenir un bajón repentino.", fr: "Après le déjeuner, la digestion consomme de l'énergie. Évitez les sucreries pour parer au coup de barre.", zh: "午餐后消化会消耗能量。避免食用含糖零食，以防能量突然下降。" },
+            { ro: "Dacă simți oboseală mentală, închide ochii pentru 60 de secunde și concentrează-te doar pe sunetul respirației.", en: "If you feel mental fatigue, close your eyes for 60 seconds and focus entirely on the sound of your breath.", es: "Si sientes fatiga mental, cierra los ojos durante 60 segundos y concéntrate solo en tu respiración.", fr: "Si vous ressentez de la fatigue mentale, fermez les yeux 60 secondes et concentez-vous sur votre souffle.", zh: "如果你感到精神疲劳，闭上眼睛60秒，完全专注于呼吸的声音。" }
+          ],
+          evening: [
+            { ro: "Lasă mintea să se liniștească după o zi plină. Începe să reduci treptat intensitatea luminii în casă.", en: "Let your mind settle after a busy day. Begin to gradually dim the lights in your home.", es: "Permite que tu mente descanse tras un día ajetreado. Ve atenuando las luces de casa gradualmente.", fr: "Laissez votre esprit s'apaiser après une journée bien remplie. Tamisez doucement les lumières.", zh: "忙碌了一天后，让你的思绪慢下来，留出时间与自己相处。" },
+            { ro: "Ora cinei este ideală pentru conectare. Mănâncă fără ecrane pentru a favoriza o digestie calmă.", en: "Dinner time is perfect for connection. Eat screen-free to promote calm, mindful digestion.", es: "La hora de cenar es para conectar. Come sin pantallas para favorecer una digestión tranquila.", fr: "Le dîner est propice à la connexion. Mangez sans écran pour favoriser une digestion paisible.", zh: "晚餐时间是与家人联系的黄金期。不看屏幕进餐可以促进平静和专注的消化。" },
+            { ro: "O plimbare scurtă după cină ajută la stabilizarea glicemiei și pregătește corpul pentru somn.", en: "A brief walk after dinner helps stabilize blood sugar levels and prepares the body for sleep.", es: "Un paseo corto después de cenar ajuta la stabilizarea glicemiei și pregătește corpul para somn.", fr: "Une courte marche après le dîner aide à stabiliser la glycémie et prépare le corps au sommeil.", zh: "晚餐后散步片刻有助于稳定血糖水平，并让身体做好睡眠准备。" }
+          ],
+          night: [
+            { ro: "Pregătește-te pentru un somn odihnitor. Aerisește dormitorul: temperatura ideală pentru somn este de 18-20°C.", en: "Prepare for restful sleep. Air out your bedroom: the ideal sleeping temperature is 18-20°C (64-68°F).", es: "Prepárate para dormir bien. Ventila el dormitorio: la temperatura ideal es de 18-20°C.", fr: "Préparez votre sommeil. Aérez votre chambre : la température idéale est entre 18 et 20°C.", zh: "准备进入高质量的睡眠。给卧室通风：理想的睡眠温度是18-20℃。" },
+            { ro: "Lumina albastră de la ecrane inhibă melatonina. Oprește ecranele cu o oră înainte de somn.", en: "Blue light from screens inhibits melatonin. Turn off screens one hour before going to bed.", es: "La luz azul de las pantallas inhibe la melatonina. Apaga los dispositivos una hora antes de dormir.", fr: "La lumière bleue des écrans inhibe la mélatonine. Éteignez les écrans une heure avant de dormir.", zh: "屏幕发出的蓝光会抑制褪黑素。睡觉前一小时关闭所有屏幕。" },
+            { ro: "Eliberează tensiunea musculară acumulată. Încearcă o scanare corporală mentală sau o relaxare ghidată.", en: "Release accumulated muscle tension. Try a mental body scan or simple progressive relaxation.", es: "Libera la tensión muscular acumulada. Intenta un escaneo corporal mental o relajación simple.", fr: "Libérez les tensions musculaires accumulées. Faites un scan corporel mental ou une relaxation simple.", zh: "释放积聚的肌肉紧张。尝试进行一次精神上的身体扫描或简单的渐进式肌肉放松。" }
+          ]
         };
 
-        const generalTipsData = {
-          ro: ["Îndreaptă-ți spatele și relaxează-ți umerii.", "Odihnește-ți ochii privind la distanță 20 secunde."],
-          en: ["Straighten your back and relax your shoulders.", "Rest your eyes by looking far away for 20 seconds."],
-          es: ["Endereza la espalda y relaja los hombros.", "Descansa los ojos mirando a lo lejos por 20 segundos."],
-          fr: ["Redressez votre dos et détendez vos épaules.", "Reposez vos yeux en regardant au loin 20 secondes."],
-          zh: ["挺直后背，放松肩膀。", "眺望远方20秒，让眼睛休息。"]
+        const generalTipsPool = [
+          { ro: "Îndreaptă-ți spatele, rotește umerii în spate și relaxează-ți maxilarul.", en: "Straighten your back, roll your shoulders back, and release the tension in your jaw.", es: "Endereza la espalda, gira los hombros hacia atrás y relaja la mandíbula.", fr: "Redressez votre dos, roulez vos épaules vers l'arrière et relâchez votre mâchoire.", zh: "挺直后背，向后滚动肩膀，放松下颌。" },
+          { ro: "Aplică regula 20-20-20: la fiecare 20 de minute, privește un obiect la 6 metri distanță timp de 20 de secunde pentru a proteja ochii.", en: "Apply the 20-20-20 rule: every 20 minutes, look at an object 20 feet away for at least 20 seconds to prevent screen eye strain.", es: "Aplica la regla 20-20-20: cada 20 minutos, mira un objeto a 6 metros durante 20 segundos para evitar la fatiga visual.", fr: "Appliquez la règle 20-20-20 : toutes les 20 minutes, regardez à 6 mètres pendant 20 secondes pour reposer vos yeux.", zh: "应用20-20-20法则：每20分钟，注视至少20英尺（约6米）外的一件物体20秒，以缓解眼睛疲劳。" },
+          { ro: "Ia acum trei respirații adânci și lente. Inspiră încredere, expiră oboseală.", en: "Take three slow, deep belly breaths right now. Inhale confidence, exhale fatigue.", es: "Respira hondo y despacio tres veces. Inhala confianza, exhala fatiga.", fr: "Prenez trois lentes et profondes respirations abdominales. Inspirez la confiance, expirez la fatigue.", zh: "现在进行三次缓慢的深腹式呼吸。吸入自信，呼出疲惫。" },
+          { ro: "Hidratarea afectează direct performanța cognitivă. Bea un pahar cu apă acum, chiar dacă nu simți sete.", en: "Hydration directly affects cognitive performance. Drink a glass of water now, even if you don't feel thirsty.", es: "La hidratación afecta el rendimiento cognitivo. Bebe un vaso de agua ahora, aunque no sientas sed.", fr: "L'hydratation influence les performances cognitives. Buvez un verre d'eau maintenant, même sans sensation de soif.", zh: "水分摄入直接影响认知表现。现在喝一杯水，即使你还不觉得渴。" },
+          { ro: "Fă o scurtă întindere pentru încheieturi și degete. Strânge pumnii 5 secunde, apoi deschide palmele larg.", en: "Give your wrists and fingers a quick stretch. Clench into fists, hold for 5 seconds, then open wide.", es: "Estira las muñecas y los dedos. Haz puños, sostén por 5 segundos y luego abre bien las manos.", fr: "Étirez vos poignets et vos doigts. Serrez les poings pendant 5 secondes, puis ouvrez grand.", zh: "快速拉伸手腕和手指。握紧拳头保持5秒，然后张开双手。" },
+          { ro: "Ia o micro-pauză de 2 minute pentru a-ți întinde picioarele și spatele. Îmbunătățește circulația sângelui.", en: "Take a micro-break of 2 minutes to stretch your hamstrings and calves. It improves circulation.", es: "Tómate una micro-pausa de 2 minutos para estirar las piernas y la espalda. Mejora la circulación.", fr: "Faites une micro-pause de 2 minutes pour étirer vos jambes et votre dos. Améliore la circulation sanguine.", zh: "进行2分钟的微休息，拉伸大腿后侧和小腿肌肉。这能改善血液循环。" }
+        ];
+
+        const weatherTipsList = {
+          clear: [
+            { ro: "Afară e senin. Nu uita de SPF și ochelari; radiațiile UV sunt active chiar și în zilele răcoroase de primăvară.", en: "Clear sky outside. Don't forget SPF and sunglasses; UV rays are active even on cool spring days.", es: "Cielo despejado. No olvides SPF y gafas de sol; los rayos UV están activos incluso en días frescos.", fr: "Ciel dégagé. N'oubliez pas les lunettes et SPF; les UV sont actifs même par journées fraîches.", zh: "室外晴朗。不要忘记防晒和墨镜；即使在凉爽er的春季，紫外线也很活跃。" },
+            { ro: "Lumina puternică a soarelui stimulează producția de serotonină și reglează ritmul circadian. Fă o scurtă plimbare.", en: "Bright sunlight boosts serotonin production and regulates your circadian rhythm. Take a short walk.", es: "La luz solar directa estimula la serotonina y regula el ritmo circadiano. Da un paseo corto.", fr: "La lumière du soleil stimule la production de sérotonine et règle le rythme circadien. Promenez-vous.", zh: "明亮的阳光能促进血清素产生并调节你的昼夜节律。建议出去散散步。" },
+            { ro: "Pe vreme caldă și senină, pierderea de apă prin transpirație crește. Bea apă cu lămâie pentru a reface sărurile minerale.", en: "In hot and clear weather, water loss through sweat increases. Drink water with lemon to restore minerals.", es: "Con calor y sol, aumenta la pérdida de agua por sudor. Bebe agua con limón para recuperar minerales.", fr: "Par temps chaud et ensoleillé, la sudation augmente. Buvez de l'eau citronnée pour restaurer les minéraux.", zh: "在炎热晴朗的天气里，出汗导致的水分流失增加。喝些柠檬水以补充矿物质。" }
+          ],
+          cloudy: [
+            { ro: "Norii filtrează lumina solară directă, dar până la 80% din radiațiile UV trec prin ei. Protejează-ți pielea sensibilă.", en: "Clouds filter direct sunlight, but up to 80% of UV radiation still passes through. Protect sensitive skin.", es: "Las nubes filtran el sol directo, pero hasta el 80% de los rayos UV penetran. Protege la piel sensible.", fr: "Les nuages filtrent le soleil direct, mais jusqu'à 80% des UV traversent. Protégez votre peau sensible.", zh: "云层过滤了直射阳光，但仍有高达80%的紫外线穿透。注意保护敏感皮肤。" },
+            { ro: "Lumina difuză din zilele înnorate este relaxantă pentru ochi. Profită pentru a citi sau a te plimba fără ochelari de soare.", en: "Diffuse light on cloudy days is relaxing for the eyes. Use this opportunity to walk without sunglasses.", es: "La luz difusa de los días nublados relaja la vista. Aprovecha para caminar sin gafas de sol.", fr: "La lumière diffuse des jours nuageux repose les yeux. Profitez-en pour marcher sans lunettes de soleil.", zh: "多云天气的漫射光可以让眼睛得到放松。利用这个机会脱掉墨镜散步吧。" },
+            { ro: "Lipsa soarelui direct poate reduce nivelul de energie. Activează-te prin mișcări ușoare sau stretching în casă.", en: "Lack of direct sunlight can lower energy levels. Activate your body with light indoor movements or stretching.", es: "La falta de sol directo puede mermar tu energía. Actívate con estiramientos suaves en interiores.", fr: "Le manque de soleil peut réduire l'énergie. Restez actif avec de légers étirements à l'intérieur.", zh: "缺乏直射阳光可能会降低能量水平。通过简单的室内活动或拉伸来激活身体。" }
+          ],
+          rainy: [
+            { ro: "Ploaia spală praful și polenul din atmosferă, aerul fiind mult mai curat. Aerisește camera scurt pentru împrospătare.", en: "Rain cleans dust and pollen from the atmosphere, purifying the air. Air out your room briefly to refresh.", es: "La lluvia limpia el polvo y polen del aire, purificándolo. Ventila tu habitación brevemente para refrescar.", fr: "La pluie nettoie la poussière et le pollen, purifiant l'air. Aérez brièvement votre chambre pour la rafraîchir.", zh: "雨水洗去了大气中的尘埃和花粉，净化了空气。短暂开窗通风以保持空气清新。" },
+            { ro: "Sunetul ploii generează zgomot roz natural, excelent pentru calmarea minții. Ascultă-l fără căști la geam.", en: "The sound of rain generates natural pink noise, excellent for calming the mind. Listen to it near the window.", es: "El sonido de la lluvia genera ruido rosa natural, excelente para calmar la mente. Escúchalo cerca de la ventana.", fr: "Le bruit de la pluie est un bruit rose naturel, parfait pour calmer l'esprit. Écoutez-le près de la fenêtre.", zh: "雨声会产生天然的粉红噪音，非常适合平复心境。在窗边静静聆听吧。" },
+            { ro: "Scăderea presiunii atmosferice în timpul ploii poate crea dureri ușoare de articulații. Menține circulația prin mișcare.", en: "The drop in atmospheric pressure during rain can cause mild joint stiffness. Keep moving to boost circulation.", es: "La bajada de presión con lluvia puede causar rigidez articular ligera. Mantente activo para activar la circulación.", fr: "La baisse de pression par temps de pluie peut raidir les articulations. Bougez pour stimuler la circulation.", zh: "下雨期间气压下降可能会导致轻微的关节僵硬。保持活动以促进血液循环。" }
+          ],
+          snowy: [
+            { ro: "Zăpada reflectă până la 80-90% din lumina soarelui (efectul de albedo), dublând expunerea UV. Protecția ochilor este cheie.", en: "Snow reflects up to 80-90% of sunlight (albedo effect), doubling UV exposure. Eye protection is key.", es: "La nieve refleja el 80-90% de la luz solar (efecto albedo), duplicando la radiación UV. Protege tus ojos.", fr: "La neige reflète 80-90% de la lumière (effet albedo), doublant l'exposition aux UV. Protégez vos yeux.", zh: "白雪反射高达80-90%的阳光（反照率效应），使紫外线暴露加倍。保护眼睛是关键。" },
+            { ro: "Aerul rece de iarnă conține mai puțină umiditate, uscând pielea. Folosește o cremă hidratantă bogată în lipide.", en: "Cold winter air holds less moisture, drying out skin. Use a rich moisturizer and stay hydrated.", es: "El aire frío contiene menos humedad, resecando la piel. Usa una crema hidratante rica y bebe agua.", fr: "L'air froid est sec et déshydrate la peau. Utilisez une crème hydratante riche et buvez de l'eau.", zh: "寒冷的冬季空气水分较少，容易使皮肤干燥。使用滋润的护肤品并注意补水。" },
+            { ro: "Zăpada proaspătă absoarbe sunetul, creând o liniște profundă în natură. Experimentează o plimbare meditativă.", en: "Fresh snow absorbs sound waves, creating a profound quiet in nature. Try a quiet, mindful walk.", es: "La nieve fresca absorbe el sonido, creando un silencio profundo en la naturaleza. Intenta un paseo meditativo.", fr: "La neige fraîche étouffe les sons, créant un calme apaisant. Essayez une marche méditative et silencieuse.", zh: "新雪能吸收声波，在大自然中营造出深邃的宁静。尝试一次安静的正念散步。" }
+          ],
+          stormy: [
+            { ro: "Furtunile agită polenul și eliberează ozon la nivelul solului, afectând astmaticii. Rămâi în casă cu geamurile închise.", en: "Storms stir up pollen and release ground-level ozone, affecting asthmatics. Stay indoors with windows closed.", es: "Las tormentas agitan el polen y liberan ozono, afectando a asmáticos. Quédate en interiores con ventanas cerradas.", fr: "L'orage brasse le pollen et libère de l'ozone au sol. Restez à l'intérieur avec les fenêtres fermées.", zh: "暴风雨会激起花粉并释放地面臭氧，影响哮喘患者。留在室内并关闭窗户。" },
+            { ro: "Descărcările electrice generează câmpuri electromagnetice intense. Deconectează aparatura sensibilă de la rețea.", en: "Lightning strikes generate intense electromagnetic fields. Disconnect sensitive electronics from wall outlets.", es: "Los rayos generan fuertes campos electromagnéticos. Desconecta los aparatos eléctricos sensibles de la red.", fr: "La foudre génère des champs électromagnétiques intenses. Débranchez vos appareils électroniques sensibles.", zh: "雷击会产生强烈的电磁场。断开敏感电子设备与电源插座的连接。" },
+            { ro: "Presiunea atmosferică scade brusc înainte de furtună, putând declanșa migrene. Redu lumina și bea ceai de mușețel.", en: "Atmospheric pressure drops sharply before a storm, which can trigger migraines. Dim lights and drink chamomile tea.", es: "La presión baja rápido antes de una tormenta, pudiendo causar migrañas. Atenúa luces y toma té de manzanilla.", fr: "La pression chute vite avant l'orage, pouvant causer des migraines. Tamisez la lumière et buvez une tisane.", zh: "风暴前气压急剧下降，可能会诱发偏头痛。调暗灯光，喝杯洋甘菊茶。" }
+          ],
+          foggy: [
+            { ro: "Ceața captează noxele și alergenii aproape de sol. Evită exercițiile fizice intense în aer liber în zonele urbane.", en: "Fog traps pollutants and allergens close to the ground. Avoid high-intensity outdoor exercise in urban areas.", es: "La niebla atrapa contaminantes y alérgenos cerca del suelo. Evita ejercicio intenso al aire libre en ciudad.", fr: "Le brouillard plaque la pollution et les allergènes au sol. Évitiez le sport intense en extérieur en ville.", zh: "大雾会将污染物和过敏原困在靠近地面的地方。避免在城市地区进行高强度的户外运动。" },
+            { ro: "Umiditatea de 100% din ceață răcește rapid corpul prin haine. Poartă un strat exterior rezistent la vânt și umezeală.", en: "100% humidity in fog cools your body quickly through clothes. Wear a wind and water-resistant outer layer.", es: "El 100% de humedad en la niebla enfría el cuerpo rápido a través de la ropa. Usa prendas cortavientos.", fr: "L'humidité de 100% refroidit vite le corps à travers les habits. Portez une veste imperméable.", zh: "雾气中100% de umiditate din ceață răcește rapid corpul prin haine. Poartă un strat exterior rezistent la vânt și umezeală." },
+            { ro: "Vizibilitate redusă cere atenție sporită. Dacă mergi pe jos, poartă culori contrastante și fii atent la intersecții.", en: "Reduced visibility requires extra alertness. If walking, wear contrasting colors and watch crosswalks carefully.", es: "La baja visibilidad requiere atención. Si caminas, usa ropa llamativa y ten precaución en los cruces.", fr: "La visibilité réduite exige de la vigilance. Si vous marchez, portez des couleurs visibles et faites attention aux carrefours.", zh: "能见度低需要额外提高警惕。步行时，穿着对比鲜明的衣服，过马路时要特别小心。" }
+          ]
         };
 
-        const appData = {
-          clear: { tips: { ro: "Afară e senin. Nu uita de ochelarii de soare și SPF.", en: "Clear outside. Don't forget sunglasses and SPF.", es: "Despejado. No olvides gafas de sol y SPF.", fr: "Dégagé. N'oubliez pas les lunettes et SPF.", zh: "外面晴朗。出门别忘了墨镜和防晒。" } },
-          cloudy: { tips: { ro: "Zi perfectă pentru plimbări prelungite, ia o jachetă.", en: "Perfect for walks, take a light jacket.", es: "Perfecto para caminar, lleva una chaqueta.", fr: "Parfait pour marcher, prenez une veste.", zh: "适合散步，建议带件薄外套。" } },
-          rainy: { tips: { ro: "Ia cu tine o umbrelă și încălțăminte rezistentă la apă.", en: "Take an umbrella and water-resistant shoes.", es: "Lleva paraguas y zapatos impermeables.", fr: "Prenez un parapluie et des chaussures étanches.", zh: "出门带伞并穿防水鞋。" } },
-          snowy: { tips: { ro: "Îmbracă-te inteligent în straturi (căciulă, mănuși).", en: "Dress in warm layers (hat, gloves).", es: "Vístete en capas (gorro, guantes).", fr: "Habillez-vous chaudement (bonnet, gants).", zh: "注意保暖，带好帽子手套。" } },
-          stormy: { tips: { ro: "Vreme instabilă! Evită deplasările neesențiale.", en: "Unstable weather! Avoid travel.", es: "¡Clima inestable! Evita viajar.", fr: "Météo instable ! Évitez de voyager.", zh: "天气不稳定！避免外出。" } },
-          foggy: { tips: { ro: "Vizibilitate redusă. Fii precaut și poartă culori vii.", en: "Low visibility. Be cautious.", es: "Baja visibilidad. Ten precaución.", fr: "Faible visibilité. Soyez prudent.", zh: "能见度低，请小心。" } }
+        const getDeterministicIndex = (list, seed = "") => {
+          if (!list || list.length === 0) return 0;
+          const day = new Date().getDate();
+          let hash = day;
+          for (let i = 0; i < seed.length; i++) {
+            hash += seed.charCodeAt(i);
+          }
+          return hash % list.length;
         };
 
         const lightThemes = {
@@ -444,7 +478,7 @@
         function App() {
           const [lang, setLang] = useState(() => safeGetLocal('jw_lang', getBrowserLanguage()));
           const [savedCities, setSavedCities] = useState(() => safeGetLocal('jw_cities', []));
-          const [lastLocation, setLastLocation] = useState(() => safeGetLocal('jw_lastloc', null));
+          const [detectedLocation, setDetectedLocation] = useState(() => safeGetLocal('jw_detected_loc', null));
           
           const [activeTab, setActiveTab] = useState('weather');
           const [weatherData, setWeatherData] = useState(null);
@@ -648,6 +682,23 @@
           const currentTheme = isSystemDark ? darkThemes[weatherCategory] : lightThemes[weatherCategory];
           const isCurrentCitySaved = weatherData && savedCities.some(c => c.city === weatherData.city);
 
+          // Select deterministic, non-repeating tips based on current city and date
+          const citySeed = weatherData ? weatherData.city : "";
+          
+          const weatherTipsForCat = weatherTipsList[weatherCategory] || [];
+          const weatherTipIndex = getDeterministicIndex(weatherTipsForCat, citySeed + "_weather");
+          const selectedWeatherTip = weatherTipsForCat[weatherTipIndex]?.[lang] || "";
+          
+          const timeOfDayTipsForPeriod = timeOfDayTipsList[timePeriod] || [];
+          const timeOfDayTipIndex = getDeterministicIndex(timeOfDayTipsForPeriod, citySeed + "_time");
+          const selectedTimeOfDayTip = timeOfDayTipsForPeriod[timeOfDayTipIndex]?.[lang] || "";
+          
+          const index1 = getDeterministicIndex(generalTipsPool, citySeed + "_gen1");
+          const offset = 1 + (new Date().getDate() % (generalTipsPool.length - 1));
+          const index2 = (index1 + offset) % generalTipsPool.length;
+          const selectedGeneralTip1 = generalTipsPool[index1]?.[lang] || "";
+          const selectedGeneralTip2 = generalTipsPool[index2]?.[lang] || "";
+
           let mindfulAlert = null;
           if (weatherData) {
             if (weatherData.surfacePressure < 1005) {
@@ -684,7 +735,7 @@
               return new Date(isoString).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit', hour12: false });
           };
 
-          const fetchWeatherByCoords = async (lat, lon, cityName = "") => {
+          const fetchWeatherByCoords = async (lat, lon, cityName = "", isUserLocation = false) => {
             setLoading(true);
             setStatusMessage("");
             try {
@@ -767,7 +818,10 @@
               };
 
               setWeatherData(newWeatherData);
-              safeSetLocal('jw_lastloc', newWeatherData);
+              if (isUserLocation) {
+                setDetectedLocation(newWeatherData);
+                safeSetLocal('jw_detected_loc', newWeatherData);
+              }
 
               setStatusMessage("");
             } catch (error) {
@@ -808,11 +862,13 @@
               fetchWeatherByCoords(city.latitude, city.longitude, city.name);
           };
 
-          const getLocationWithIPFallback = async () => {
+          const getLocationWithIPFallback = async (isStartup = false) => {
             triggerVibration(20);
             setLoading(true);
             setLocationWarning("");
-            setWeatherData(null); // Force skeleton
+            if (isStartup !== true) {
+              setWeatherData(null); // Force skeleton only for manual clicks
+            }
 
             const fallbackToIPGeo = async () => {
               try {
@@ -820,16 +876,16 @@
                 const data = await res.json();
                 if (data.latitude && data.longitude) {
                    setLocationWarning(translations[lang]?.approxLocation || "IP");
-                   await fetchWeatherByCoords(parseFloat(data.latitude), parseFloat(data.longitude), data.city || translations[lang].currentLocation);
+                   await fetchWeatherByCoords(parseFloat(data.latitude), parseFloat(data.longitude), data.city || translations[lang].currentLocation, true);
                 } else throw new Error("Invalid IP Data");
               } catch (err) {
-                fetchWeatherByCoords(47.65, 23.56, "Baia Mare");
+                fetchWeatherByCoords(47.65, 23.56, "Baia Mare", true);
               }
             };
 
             if (navigator.geolocation) {
               navigator.geolocation.getCurrentPosition(
-                (position) => fetchWeatherByCoords(position.coords.latitude, position.coords.longitude),
+                (position) => fetchWeatherByCoords(position.coords.latitude, position.coords.longitude, "", true),
                 () => fallbackToIPGeo(),
                 { timeout: 2000, enableHighAccuracy: false, maximumAge: 600000 }
               );
@@ -844,11 +900,13 @@
 
             if (queryLat && queryLon && queryCity) {
               fetchWeatherByCoords(parseFloat(queryLat), parseFloat(queryLon), queryCity).catch(()=>{});
-            } else if (lastLocation) {
-                setWeatherData(lastLocation);
-                fetchWeatherByCoords(lastLocation.lat, lastLocation.lon, lastLocation.city).catch(()=>{});
             } else {
-                getLocationWithIPFallback();
+              if (detectedLocation) {
+                // Instantly display cached data of the user's detected location
+                setWeatherData(detectedLocation);
+              }
+              // Trigger active GPS/IP detection in background
+              getLocationWithIPFallback(true);
             }
           }, []);
 
@@ -1172,7 +1230,7 @@
                 )}
 
                 {/* DATA CARD */}
-                {weatherData && !loading && (
+                {weatherData && (
                   <div className={`w-full rounded-[2rem] p-6 md:p-8 transition-all duration-1000 flex flex-col items-center gap-8 animate-fadeIn relative z-20 ${currentTheme.cardBg} ${currentTheme.textPrimary}`}>
                     
                     <div className="flex w-full mb-2 relative z-20 gap-2">
@@ -1277,21 +1335,21 @@
                         <div className="w-full text-left">
                           <h3 className={`text-[10px] font-bold tracking-widest uppercase opacity-50 mb-3 pl-1`}>{translations[lang]?.tipsTitle}</h3>
                           <div className={`text-sm md:text-base font-semibold leading-relaxed p-5 rounded-2xl ${currentTheme.panelBg}`}>
-                            <span className="mr-2 opacity-80">💡</span> {appData[weatherCategory]?.tips?.[lang]}
+                            <span className="mr-2 opacity-80">💡</span> {selectedWeatherTip}
                           </div>
                         </div>
 
                         <div className="w-full text-left">
                           <h3 className={`text-[10px] font-bold tracking-widest uppercase opacity-50 mb-3 pl-1`}>{translations[lang]?.[`period_${timePeriod}`]}</h3>
                           <div className={`text-sm md:text-base font-semibold leading-relaxed p-5 rounded-2xl ${currentTheme.panelBg}`}>
-                            <span className="mr-2 opacity-80">🧘‍♀️</span> {timeOfDayTipsData[timePeriod]?.[lang]}
+                            <span className="mr-2 opacity-80">🧘‍♀️</span> {selectedTimeOfDayTip}
                           </div>
                         </div>
 
                         <div className="w-full text-left">
                           <h3 className={`text-[10px] font-bold tracking-widest uppercase opacity-50 mb-3 pl-1`}>{translations[lang]?.generalTipsTitle}</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
-                            {(generalTipsData[lang] || generalTipsData.en).map((tip, idx) => (
+                            {[selectedGeneralTip1, selectedGeneralTip2].map((tip, idx) => (
                               <div key={idx} className={`p-4 rounded-2xl flex items-start gap-3 font-semibold ${currentTheme.panelBg}`}>
                                 <span className="opacity-70">✨</span> <span>{tip}</span>
                               </div>

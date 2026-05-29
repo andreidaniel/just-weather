@@ -1,8 +1,9 @@
-const CACHE_NAME = 'just-weather-v4';
+const CACHE_NAME = 'just-weather-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './privacy.html',
+  './style.css',
   './screenshot-mobile.png',
   './screenshot-desktop.png',
   './manifest.json',
@@ -14,7 +15,6 @@ const ASSETS_TO_CACHE = [
   './icon.png',
   './icon-512.png',
   './icon-maskable.png',
-  'https://cdn.tailwindcss.com',
   'https://unpkg.com/react@18/umd/react.production.min.js',
   'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
   'https://unpkg.com/@babel/standalone/babel.min.js'
