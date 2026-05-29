@@ -1,9 +1,12 @@
 {
   "name": "Juste Météo",
   "short_name": "JusteMétéo",
-  "description": "Une application météo minimaliste, relaxante et premium pour votre bien-être.",
+  "description": "Une application météo minimaliste et relaxante pour votre bien-être.",
+  "id": "/?source=pwa",
+  "iarc_rating_id": "",
   "start_url": "index.html",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
   "background_color": "#09090b",
   "theme_color": "#09090b",
   "orientation": "portrait-primary",
@@ -25,6 +28,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Une application météo minimaliste et relaxante"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Interface de bureau moderne"
     }
   ],
   "lang": "fr",

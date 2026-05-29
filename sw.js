@@ -3,6 +3,8 @@ const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './privacy.html',
+  './screenshot-mobile.png',
+  './screenshot-desktop.png',
   './manifest.json',
   './manifest-ro.json',
   './manifest-en.json',

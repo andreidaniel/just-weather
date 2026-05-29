@@ -1,9 +1,12 @@
 {
   "name": "Just Weather",
   "short_name": "JustWeather",
-  "description": "O aplicație meteo minimalistă, relaxantă și premium pentru starea ta de bine.",
+  "description": "O aplicație meteo minimalistă și relaxantă pentru starea ta de bine.",
+  "id": "/?source=pwa",
+  "iarc_rating_id": "",
   "start_url": "index.html",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
   "background_color": "#09090b",
   "theme_color": "#09090b",
   "orientation": "portrait-primary",
@@ -25,6 +28,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "O aplicație meteo minimalistă și relaxantă"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Interfață de desktop modernă"
     }
   ],
   "lang": "ro",

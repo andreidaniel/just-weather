@@ -746,13 +746,20 @@
               navigator.geolocation.getCurrentPosition(
                 (position) => fetchWeatherByCoords(position.coords.latitude, position.coords.longitude),
                 () => fallbackToIPGeo(),
-                { timeout: 10000, enableHighAccuracy: false, maximumAge: 600000 }
+                { timeout: 2000, enableHighAccuracy: false, maximumAge: 600000 }
               );
             } else fallbackToIPGeo();
           };
 
           useEffect(() => {
-            if (lastLocation) {
+            const params = new URLSearchParams(window.location.search);
+            const queryLat = params.get('lat');
+            const queryLon = params.get('lon');
+            const queryCity = params.get('city');
+
+            if (queryLat && queryLon && queryCity) {
+              fetchWeatherByCoords(parseFloat(queryLat), parseFloat(queryLon), queryCity).catch(()=>{});
+            } else if (lastLocation) {
                 setWeatherData(lastLocation);
                 fetchWeatherByCoords(lastLocation.lat, lastLocation.lon, lastLocation.city).catch(()=>{});
             } else {

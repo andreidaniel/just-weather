@@ -1,9 +1,12 @@
 {
   "name": "Solo Clima",
   "short_name": "SoloClima",
-  "description": "Una aplicación del clima minimalista, relajante y premium para tu bienestar.",
+  "description": "Una aplicación meteorológica minimalista y relajante para tu bienestar.",
+  "id": "/?source=pwa",
+  "iarc_rating_id": "",
   "start_url": "index.html",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
   "background_color": "#09090b",
   "theme_color": "#09090b",
   "orientation": "portrait-primary",
@@ -25,6 +28,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Una aplicación de clima minimalista y relajante"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Interfaz de escritorio moderna"
     }
   ],
   "lang": "es",

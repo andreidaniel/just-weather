@@ -1,9 +1,12 @@
 {
   "name": "Just Weather",
   "short_name": "JustWeather",
-  "description": "A minimalist, relaxing, and premium weather app for your well-being.",
+  "description": "A minimalist and relaxing weather app for your well-being.",
+  "id": "/?source=pwa",
+  "iarc_rating_id": "",
   "start_url": "index.html",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
   "background_color": "#09090b",
   "theme_color": "#09090b",
   "orientation": "portrait-primary",
@@ -25,6 +28,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "A minimalist and relaxing weather app"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Modern desktop interface"
     }
   ],
   "lang": "en",
