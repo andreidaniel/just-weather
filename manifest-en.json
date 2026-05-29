@@ -33,7 +33,7 @@
   "screenshots": [
     {
       "src": "screenshot-mobile.png",
-      "sizes": "1080x1920",
+      "sizes": "1280x2308",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "A minimalist and relaxing weather app"
