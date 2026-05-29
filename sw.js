@@ -1,4 +1,4 @@
-const CACHE_NAME = 'just-weather-v2';
+const CACHE_NAME = 'just-weather-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
