@@ -1400,7 +1400,7 @@
                                   <span className="text-xs opacity-70 font-semibold">{formatTime(h.time)}</span>
                                   <span className="text-xl my-2 drop-shadow-sm">{getWeatherEmoji(h.code, h.precipProb, checkIfHourIsNight(h.time))}</span>
                                   {h.precipProb > 0 ? (
-                                    <span className={`text-[10px] font-bold ${isSystemDark ? 'text-blue-300' : 'text-blue-600'} opacity-90 -mt-1 mb-1`}>{h.precipProb}%</span>
+                                    <span className={`text-[10px] font-bold ${isSystemDark ? 'text-blue-300' : 'text-blue-600'} opacity-90 -mt-1 mb-1`}>☔ {h.precipProb}%</span>
                                   ) : <div className="h-4" />}
                                   <span className="text-sm font-bold" style={{ whiteSpace: 'nowrap' }}>{h.temp}°</span>
                                 </div>
@@ -1422,7 +1422,7 @@
                                     <span className="text-xl drop-shadow-sm">{getWeatherEmoji(d.code, d.precipProb)}</span>
                                     {d.precipProb > 0 && (
                                       <span className={`text-[10px] font-bold ${isSystemDark ? 'text-blue-300 bg-blue-900/30' : 'text-blue-600 bg-blue-500/10'} opacity-90 px-2 py-0.5 rounded-full`} style={{ whiteSpace: 'nowrap' }}>
-                                        {d.precipProb}%
+                                        ☔ {d.precipProb}%
                                       </span>
                                     )}
                                   </div>
