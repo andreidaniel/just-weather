@@ -65,6 +65,7 @@
             pressureAlert: "🌡️ Presiune atmosferică scăzută. Hidratează-te bine.",
             aqi: "Calitatea Aerului", aqiGood: "Excelentă", aqiFair: "Acceptabilă", aqiModerate: "Moderată", aqiPoor: "Scăzută", sunrise: "Răsărit", sunset: "Apus",
             appName: "Doar Vremea",
+            moonPhase: "Faza Lunii",
             ambientTitle: "Terapie prin Sunet", ambientPlay: "Ascultă sunetul", ambientStop: "Oprește sunetul",
             pinkNoise: "Zgomot Roz", brownNoise: "Zgomot Brun", whiteNoise: "Zgomot Alb", greenNoise: "Zgomot Verde",
             pinkNoiseDesc: "Somn profund și memorie • Sună ca o ploaie caldă de vară",
@@ -94,6 +95,7 @@
             pressureAlert: "🌡️ Low atmospheric pressure. Stay hydrated.",
             aqi: "Air Quality", aqiGood: "Excellent", aqiFair: "Fair", aqiModerate: "Moderate", aqiPoor: "Poor", sunrise: "Sunrise", sunset: "Sunset",
             appName: "Just Weather",
+            moonPhase: "Moon Phase",
             ambientTitle: "Sound Therapy", ambientPlay: "Play sound", ambientStop: "Stop sound",
             pinkNoise: "Pink Noise", brownNoise: "Brown Noise", whiteNoise: "White Noise", greenNoise: "Green Noise",
             pinkNoiseDesc: "Deep sleep and memory • Sounds like a warm summer rain",
@@ -123,6 +125,7 @@
             pressureAlert: "🌡️ Presión baja. Mantente hidratado.",
             aqi: "Calidad del Aire", aqiGood: "Excelente", aqiFair: "Aceptable", aqiModerate: "Moderada", aqiPoor: "Pobre", sunrise: "Amanecer", sunset: "Atardecer",
             appName: "Solo Clima",
+            moonPhase: "Fase Lunar",
             ambientTitle: "Terapia de Sonido", ambientPlay: "Escuchar sonido", ambientStop: "Detener sonido",
             pinkNoise: "Ruido Rosa", brownNoise: "Ruido Marrón", whiteNoise: "Ruido Blanco", greenNoise: "Ruido Verde",
             pinkNoiseDesc: "Sueño profundo y memoria • Suena como lluvia de verano",
@@ -152,6 +155,7 @@
             pressureAlert: "🌡️ Basse pression. Restez hydraté.",
             aqi: "Qualité de l'Air", aqiGood: "Excellente", aqiFair: "Acceptable", aqiModerate: "Modérée", aqiPoor: "Médiocre", sunrise: "Lever", sunset: "Coucher",
             appName: "Juste Météo",
+            moonPhase: "Phase de la Lune",
             ambientTitle: "Thérapie par le Son", ambientPlay: "Écouter le son", ambientStop: "Arrêter le son",
             pinkNoise: "Bruit Rose", brownNoise: "Bruit Brun", whiteNoise: "Bruit Blanc", greenNoise: "Bruit Vert",
             pinkNoiseDesc: "Sommeil profond et mémoire • Sonne comme une pluie d'été",
@@ -181,6 +185,7 @@
             pressureAlert: "🌡️ 气压低。请保持水分。",
             aqi: "空气质量", aqiGood: "优", aqiFair: "良", aqiModerate: "轻度污染", aqiPoor: "重度污染", sunrise: "日出", sunset: "日落",
             appName: "极简天气",
+            moonPhase: "月相",
             ambientTitle: "声音疗法", ambientPlay: "播放声音", ambientStop: "停止声音",
             pinkNoise: "粉红噪音", brownNoise: "棕色噪音", whiteNoise: "白噪音", greenNoise: "绿噪音",
             pinkNoiseDesc: "深度睡眠与记忆 • 听起来像温暖的夏雨",
@@ -475,6 +480,33 @@
           }
         };
 
+         // Calculate exact moon phase based on dates
+         const getMoonPhase = (date) => {
+           const refDate = new Date("2000-01-06T18:14:00Z");
+           const diffMs = date.getTime() - refDate.getTime();
+           const diffDays = diffMs / (1000 * 60 * 60 * 24);
+           const phase = (diffDays / 29.530588853) % 1;
+           const normalizedPhase = phase < 0 ? phase + 1 : phase;
+           
+           if (normalizedPhase < 0.03 || normalizedPhase > 0.97) {
+             return { emoji: "🌑", name: { ro: "Lună Nouă", en: "New Moon", es: "Luna Nueva", fr: "Nouvelle Lune", zh: "新月" } };
+           } else if (normalizedPhase < 0.22) {
+             return { emoji: "🌒", name: { ro: "Semilună în creștere", en: "Waxing Crescent", es: "Luna Creciente", fr: "Premier Croissant", zh: "峨眉月" } };
+           } else if (normalizedPhase < 0.28) {
+             return { emoji: "🌓", name: { ro: "Primul Pătrar", en: "First Quarter", es: "Cuarto Creciente", fr: "Premier Quartier", zh: "上弦月" } };
+           } else if (normalizedPhase < 0.47) {
+             return { emoji: "🌔", name: { ro: "Lună în creștere", en: "Waxing Gibbous", es: "Gibosa Creciente", fr: "Lune Gibbeuse Croissante", zh: "盈凸月" } };
+           } else if (normalizedPhase < 0.53) {
+             return { emoji: "🌕", name: { ro: "Lună Plină", en: "Full Moon", es: "Luna Llena", fr: "Pleine Lune", zh: "满月" } };
+           } else if (normalizedPhase < 0.72) {
+             return { emoji: "🌖", name: { ro: "Lună în scădere", en: "Waning Gibbous", es: "Gibosa Menguante", fr: "Lune Gibbeuse Décroissante", zh: "亏凸月" } };
+           } else if (normalizedPhase < 0.78) {
+             return { emoji: "🌗", name: { ro: "Ultimul Pătrar", en: "Third Quarter", es: "Cuarto Menguante", fr: "Dernier Quartier", zh: "下弦月" } };
+           } else {
+             return { emoji: "🌘", name: { ro: "Semilună în scădere", en: "Waning Crescent", es: "Luna Menguante", fr: "Dernier Croissant", zh: "残月" } };
+           }
+         };
+
         function App() {
           const [lang, setLang] = useState(() => safeGetLocal('jw_lang', getBrowserLanguage()));
           const [savedCities, setSavedCities] = useState(() => safeGetLocal('jw_cities', []));
@@ -617,7 +649,7 @@
               window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
             };
           }, []);
-
+          
           const handleInstallClick = async () => {
             if (!deferredPrompt) return;
             triggerVibration(20);
@@ -684,6 +716,37 @@
           const weatherCategory = weatherData ? getWeatherCategory(weatherData.code) : 'clear';
           const currentTheme = isSystemDark ? darkThemes[weatherCategory] : lightThemes[weatherCategory];
           const isCurrentCitySaved = weatherData && savedCities.some(c => c.city === weatherData.city);
+
+          const isNight = (() => {
+            if (!weatherData || !weatherData.sunrise || !weatherData.sunset) return false;
+            try {
+              const localDate = new Date(Date.now() + (weatherData.localOffsetMs || 0));
+              const tTime = localDate.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+              const tSunrise = weatherData.sunrise.split('T')[1].substring(0, 5);
+              const tSunset = weatherData.sunset.split('T')[1].substring(0, 5);
+              return tTime < tSunrise || tTime > tSunset;
+            } catch (e) {
+              return false;
+            }
+          })();
+
+          const moonPhaseInfo = (() => {
+            if (!weatherData) return null;
+            const localDate = new Date(Date.now() + (weatherData.localOffsetMs || 0));
+            return getMoonPhase(localDate);
+          })();
+
+          const checkIfHourIsNight = (timeStr) => {
+            if (!weatherData || !weatherData.sunrise || !weatherData.sunset) return false;
+            try {
+              const tTime = timeStr.split('T')[1].substring(0, 5);
+              const tSunrise = weatherData.sunrise.split('T')[1].substring(0, 5);
+              const tSunset = weatherData.sunset.split('T')[1].substring(0, 5);
+              return tTime < tSunrise || tTime > tSunset;
+            } catch (e) {
+              return false;
+            }
+          };
 
           // Select deterministic, non-repeating tips based on current city and date
           const citySeed = weatherData ? weatherData.city : "";
@@ -1029,29 +1092,42 @@
             return () => { if (breathTimerRef.current) clearTimeout(breathTimerRef.current); };
           }, [isBreathing]);
 
-          const getWeatherEmoji = (code, precipProb = 0) => {
-            if (code === 0 || code === 1) return "☀️";
-            if (code === 2 || code === 3) return "⛅";
+          const getWeatherEmoji = (code, precipProb = 0, isHourNight = false) => {
+            const moonEmoji = (moonPhaseInfo && moonPhaseInfo.emoji) ? moonPhaseInfo.emoji : "🌙";
+            if (code === 0 || code === 1) return isHourNight ? moonEmoji : "☀️";
+            if (code === 2 || code === 3) return isHourNight ? "☁️" : "⛅";
             if (code === 45 || code === 48) return "🌫️";
             if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
-                if (precipProb < 30) return "🌦️"; 
-                if (precipProb < 70) return "🌧️"; 
-                return "☔"; 
+                if (precipProb < 30) return isHourNight ? "🌧️" : "🌦️"; 
+                return "🌧️"; 
             }
             if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return "❄️";
             if (code >= 95) return "⛈️";
-            return "☀️";
+            return isHourNight ? moonEmoji : "☀️";
           };
 
-          const renderWeatherIcon = (category, code) => {
+          const renderWeatherIcon = (category, code, isNightVal = false) => {
             const defaultClass = "w-28 h-28 stroke-current filter drop-shadow-lg transition-all duration-1000";
             switch (category) {
               case 'clear': 
                 if (code === 1 || code === 2) {
+                    if (isNightVal) {
+                        // Moon with cloud
+                        return <svg className={`${defaultClass} ${currentTheme.iconColor} animate-bounce-slow`} fill="none" viewBox="0 0 24 24" strokeWidth="1.2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-1-9.9V9a4 4 0 00-8 0v.1A4 4 0 003 15z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.5A3 3 0 0115.6 3.6a3 3 0 003.9 3.9z" className="animate-pulse" />
+                        </svg>;
+                    }
                     // Parțial înnorat primește iconița cu soare și nor
                     return <svg className={`${defaultClass} ${currentTheme.iconColor} animate-bounce-slow`} fill="none" viewBox="0 0 24 24" strokeWidth="1.2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-1-9.9V9a4 4 0 00-8 0v.1A4 4 0 003 15z" />
                         <circle cx="18" cy="8" r="3" className="animate-pulse" />
+                    </svg>;
+                }
+                if (isNightVal) {
+                    // Crescent Moon for clear night
+                    return <svg className={`${defaultClass} ${currentTheme.iconColor} animate-bounce-slow`} fill="none" viewBox="0 0 24 24" strokeWidth="1.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>;
                 }
                 // Senin perfect primește doar soare
@@ -1276,10 +1352,18 @@
                                 <span>{weatherData.aqi} ({getAQIText(weatherData.aqi)})</span>
                             </div>
                           )}
+
+                          {/* Moon Phase Badge */}
+                          {isNight && moonPhaseInfo && (
+                            <div className="flex items-center gap-1.5 text-[11px] font-semibold opacity-70 mt-1">
+                                <span>{moonPhaseInfo.emoji} {translations[lang].moonPhase || "Faza Lunii"}:</span>
+                                <span>{moonPhaseInfo.name[lang]}</span>
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-10">
-                          {renderWeatherIcon(weatherCategory, weatherData.code)}
+                          {renderWeatherIcon(weatherCategory, weatherData.code, isNight)}
                           <div className="text-center sm:text-left">
                             <span className="text-7xl md:text-8xl font-light tracking-tighter drop-shadow-sm" style={{ whiteSpace: 'nowrap' }}>{weatherData.temp}°</span>
                             <p className={`text-sm font-semibold mt-2 opacity-70`}>{translations[lang]?.feelsLike}: <span style={{ whiteSpace: 'nowrap' }}>{weatherData.feels}°C</span></p>
@@ -1314,7 +1398,7 @@
                               {weatherData.hourly.map((h, i) => (
                                 <div key={i} className={`flex flex-col items-center min-w-[70px] p-3 rounded-2xl ${currentTheme.panelBg}`}>
                                   <span className="text-xs opacity-70 font-semibold">{formatTime(h.time)}</span>
-                                  <span className="text-xl my-2 drop-shadow-sm">{getWeatherEmoji(h.code, h.precipProb)}</span>
+                                  <span className="text-xl my-2 drop-shadow-sm">{getWeatherEmoji(h.code, h.precipProb, checkIfHourIsNight(h.time))}</span>
                                   {h.precipProb > 0 ? (
                                     <span className={`text-[10px] font-bold ${isSystemDark ? 'text-blue-300' : 'text-blue-600'} opacity-90 -mt-1 mb-1`}>{h.precipProb}%</span>
                                   ) : <div className="h-4" />}
